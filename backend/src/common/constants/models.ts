@@ -1,0 +1,25 @@
+export const Models = {
+  Users: 'users',
+  Calls: 'calls',
+  Participants: 'participants',
+  Sessions: 'sessions',
+  LoginAttempts: 'login_attempts',
+  Feedbacks: 'Feedbacks',
+  Userfeedbacks: 'Userfeedbacks',
+  contacts: 'contacts',
+  UserPreferences: 'user_preferences',
+  chatSpaces: 'chat_spaces',
+  chatSpaceMembers: 'chat_space_members',
+  messages: 'messages',
+  queuedEvents: 'queued_events',
+  liveStreams: 'livestreams',
+  liveStreamChats: 'livestreamchats',
+  liveStreamInteractions: 'livestreaminteractions',
+  Reports: 'reports',
+  UserBlocks: 'userBlocks',
+
+  //static
+  Languages: 'languages',
+  Colors: 'colors',
+  Countries: 'countries',
+};

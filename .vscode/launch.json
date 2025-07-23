@@ -1,0 +1,37 @@
+{
+  "version": "0.2.0",
+
+  "configurations": [
+    {
+      "name": "Start Vite Dev Server (No Browser)",
+      "type": "pwa-node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/webview",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "console": "integratedTerminal",
+      "preLaunchTask": "Install Webview Dependencies"
+    },
+
+    {
+      "name": "Debug NestJS (CLI)",
+      "type": "pwa-node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/backend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "start:debug"],
+      "console": "integratedTerminal",
+
+      "preLaunchTask": "Install Backend Dependencies"
+    },
+
+    {
+      "name": "Launch React Native App (yarn example android)",
+      "type": "pwa-node",
+      "request": "launch",
+      "command": "", // Dummy
+      "preLaunchTask": "Run Example Android",
+      "skipFiles": ["<node_internals>/**"]
+    }
+  ]
+}

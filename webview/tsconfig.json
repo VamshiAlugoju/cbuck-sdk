@@ -1,0 +1,14 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ],
+  "compilerOptions": {
+    "isolatedModules": false, // required
+    "verbatimModuleSyntax": false, // optional
+    "moduleResolution": "node", // not 'bundler'
+    "preserveValueImports": false, // (if applicable)
+    "preserveConstEnums": true
+  }
+}

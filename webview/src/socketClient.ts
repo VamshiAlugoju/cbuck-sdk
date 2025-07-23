@@ -1,0 +1,70 @@
+import { Socket, io } from "socket.io-client";
+import { incomingCallEvents, mediaSocketEvents } from "./events";
+import { sendRNMessage } from "./utils/utils";
+
+class SocketClient {
+  private socket: Socket | null = null;
+  private io = io;
+
+  private constructor() {}
+
+  static getInstance(): SocketClient {
+    return new SocketClient();
+  }
+
+  connect(userId: string) {
+    const socket = this.io("https://3effe2006e71.ngrok-free.app/", {
+      query: { userId },
+      transports: ["websocket"],
+    });
+
+    socket.on("connect", () => {
+      console.log("newSocket", socket.id, " f  ", userId);
+
+      socket.onAny((event, ...args) => {
+        console.log("socketClient:: incoming event=>", event, args);
+      });
+      socket.onAnyOutgoing((event, ...args) => {
+        console.log("socketClient:: outgoing event=>", event, args);
+      });
+      sendRNMessage({
+        type: "ackFromWeb",
+        data: socket.id,
+      });
+
+      this.socket = socket;
+    });
+  }
+
+  loadSocketListeners(
+    handleIncomingCall: any,
+    haddleNewProducer: any,
+    handleCallAnswered: any,
+    handleCallTerminated: any
+  ) {
+    const socket = this.getSocket();
+    socket?.on(incomingCallEvents.INCOMING_CALL, handleIncomingCall);
+    socket?.on(mediaSocketEvents.NEW_PRODUCER, haddleNewProducer);
+    socket?.on(incomingCallEvents.CALL_ANSWERED, handleCallAnswered);
+    socket?.on(incomingCallEvents.TERMINATE_CALL, handleCallTerminated);
+  }
+
+  removeSocketListeners(
+    handleIncomingCall: any,
+    haddleNewProducer: any,
+    handleCallAnswered: any,
+    handleCallTerminated: any
+  ) {
+    const socket = this.getSocket();
+    socket?.off(incomingCallEvents.INCOMING_CALL, handleIncomingCall);
+    socket?.off(mediaSocketEvents.NEW_PRODUCER, haddleNewProducer);
+    socket?.off(incomingCallEvents.CALL_ANSWERED, handleCallAnswered);
+    socket?.off(incomingCallEvents.TERMINATE_CALL, handleCallTerminated);
+  }
+
+  getSocket(): Socket | null {
+    return this.socket;
+  }
+}
+
+export default SocketClient.getInstance();

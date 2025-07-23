@@ -1,0 +1,44 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Install Webview Dependencies",
+      "type": "shell",
+      "command": "npm install",
+      "options": {
+        "cwd": "${workspaceFolder}/webview"
+      },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "Install Backend Dependencies",
+      "type": "shell",
+      "command": "npm install",
+      "options": {
+        "cwd": "${workspaceFolder}/backend"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Install Root Dependencies",
+      "type": "shell",
+      "command": "yarn install",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Run Example Android",
+      "type": "shell",
+      "command": "yarn example android",
+      // "args": ["example", "android"],
+      "options": {
+        "cwd": "${workspaceFolder}/packages/cbuck-sdk"
+      },
+      // "dependsOn": ["Install Root Dependencies"],
+      "problemMatcher": []
+    }
+  ]
+}
