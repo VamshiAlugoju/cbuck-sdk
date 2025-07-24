@@ -13,7 +13,7 @@ export const CallBridge = () => {
     try {
       Client.handleWebViewMessage(incomingPayload);
     } catch (error) {
-      console.error('Error handling === message:', error);
+      console.error('Error handling = message:', error);
     }
   }
 
