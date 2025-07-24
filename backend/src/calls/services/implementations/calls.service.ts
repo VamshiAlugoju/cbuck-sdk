@@ -60,7 +60,7 @@ export default class CallService implements OnModuleInit {
     readonly mediaServerClient: MediaServerClient,
     @Inject(forwardRef(() => Services.SocketService))
     readonly socketService: ISocketService,
-  ) { }
+  ) {}
   onModuleInit() {
     // clearAllPreviousRoom(this).catch((e) => {
     //   Logger.error(`Error: while clearing all previous rooms ${e.message}`);
@@ -420,15 +420,13 @@ export default class CallService implements OnModuleInit {
     io.to(room.owner.socketId).emit(callSocketEvents.CALL_REJECTED, {
       userId: socket.data.userId,
     });
-    const userIdsToRemoveFromRedis = [socket.data.userId];
-    if (!room.isGroupCall) {
-      //call will be ended
-
-      await this.retryAsync(() => {
-        return this.mediaServerClient.closeRoom(roomId);
+    room.getParticipants().forEach((pt) => {
+      io.to(pt.socketId).emit(callSocketEvents.CALL_REJECTED, {
+        userId: socket.data.userId,
       });
-    } else {
-    }
+    });
+    room.cleanUp();
+    return { status: true };
   }
 
   getReceiverSocketId(room: Room, initiatorSocketId: string) {
@@ -489,17 +487,24 @@ export default class CallService implements OnModuleInit {
     // return roomId;
   }
 
-
-
   async initiateTranslation(socket: Socket, payload: InitiateTranslationDto) {
     const { producerId, roomId, targetLang } = payload;
-    const res = await this.mediaServerClient.translate(roomId, producerId, targetLang, socket.data.userId);
+    const res = await this.mediaServerClient.translate(
+      roomId,
+      producerId,
+      targetLang,
+      socket.data.userId,
+    );
     const translatedProducerId = res.producerId;
-    return { producerId: translatedProducerId, roomId, status: true, rtpCapabilities: res.rtpCapabilities };
+    return {
+      producerId: translatedProducerId,
+      roomId,
+      status: true,
+      rtpCapabilities: res.rtpCapabilities,
+    };
   }
 
-
-    async handleTranslationError(payload: TranslationErrorDto) {
+  async handleTranslationError(payload: TranslationErrorDto) {
     console.log(payload);
     const intendedTo = await getSocketId(payload.callContext.listener);
     if (!intendedTo) {

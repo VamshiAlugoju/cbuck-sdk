@@ -78,7 +78,8 @@ function App() {
           handleCallAnswered,
           handleCallTerminated,
           handleReceiveMessage,
-          onTranslationError
+          onTranslationError,
+          onCallRejected
         );
       }, 1000);
     } catch (err) {
@@ -254,6 +255,7 @@ function App() {
       roomId: callState.roomId,
     };
     socket?.emit(outGoingCallEvents.REJECT_CALL, payload);
+    setCallState(defaultCallDetails);
   }
 
   function endCall() {
@@ -273,6 +275,10 @@ function App() {
   function toggleAudioMute() {}
 
   function toggleVideoMute() {}
+
+  function onCallRejected() {
+    setCallState(defaultCallDetails);
+  }
 
   const mediaDevice = useDevice();
   const mediaProducers = useMediasoupProducers({
@@ -426,7 +432,8 @@ function App() {
         handleCallAnswered,
         handleCallTerminated,
         handleReceiveMessage,
-        onTranslationError
+        onTranslationError,
+        onCallRejected
       );
     };
   }, []);

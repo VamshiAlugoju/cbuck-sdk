@@ -53,6 +53,7 @@ export const incomingCallEvents = {
 
   CALL_IGNORED: "CALL_IGNORED",
   TERMINATE_CALL: "calls:terminate",
+  CALL_REJECTED: "calls:rejected",
 };
 
 // export type CallSocketEventValue =
