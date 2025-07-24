@@ -32,6 +32,7 @@ import {
   InviteUsersToCallDto,
   NotifyServerDto,
   RejectCallDto,
+  TranslationErrorDto,
 } from 'src/calls/dto/calls.dto';
 import Room from '../rooms/Room';
 import {
@@ -495,5 +496,16 @@ export default class CallService implements OnModuleInit {
     const res = await this.mediaServerClient.translate(roomId, producerId, targetLang, socket.data.userId);
     const translatedProducerId = res.producerId;
     return { producerId: translatedProducerId, roomId, status: true, rtpCapabilities: res.rtpCapabilities };
+  }
+
+
+    async handleTranslationError(payload: TranslationErrorDto) {
+    console.log(payload);
+    const intendedTo = await getSocketId(payload.callContext.listener);
+    if (!intendedTo) {
+      return;
+    }
+    const io = this.socketService.getServerInstance();
+    io.to(intendedTo).emit(callSocketEvents.TRANSLATION_ERROR, payload);
   }
 }

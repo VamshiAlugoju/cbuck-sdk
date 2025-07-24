@@ -4,7 +4,6 @@ import { AppService } from './main.service';
 import { RoomManager } from './core/RoomManager';
 import { StartCallDto, AnswerCallDto, ShareScreenDto, CreateroomDto } from './dto';
 import Room from './core/Room';
-import { CreateroomDto } from './dto/createRoom.dto';
 import { InitiateTranslationDto, StoppedTranslationDto } from './dto/transport.dto';
 import { AppData, Producer } from 'mediasoup/node/lib/types';
 import { getPort } from './core/ports';

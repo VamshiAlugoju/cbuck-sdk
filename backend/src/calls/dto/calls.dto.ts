@@ -314,3 +314,17 @@ export class InitiateTranslationDto {
   @IsNotEmpty({ message: 'targetLang is required' })
   targetLang: string
 }
+
+
+
+export type CallTranslationContext = {
+  roomId: string;
+  consumerId: string;
+  speaker: string;
+  listener: string;
+  originalProducerId: string;
+  targetLang: string
+}
+export class TranslationErrorDto {
+  callContext: CallTranslationContext
+}

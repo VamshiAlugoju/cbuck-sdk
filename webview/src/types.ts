@@ -162,3 +162,15 @@ export type CallDetails = {
   initiatorId: string;
   recipients: string[];
 };
+
+
+export type CallTranslationContext = {
+  callContext: {
+    roomId: string;
+    consumerId: string;
+    speaker: string;
+    listener: string;
+    originalProducerId: string;
+    targetLang: string;
+  };
+};

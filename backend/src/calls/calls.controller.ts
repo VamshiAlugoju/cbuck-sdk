@@ -21,6 +21,7 @@ import {
   GetScheduledCallListDto,
   ScheduleCallDto,
   ScheduleCallWithCallIdDto,
+  TranslationErrorDto,
 } from './dto/calls.dto';
 // import { LoginDto } from 'src/auth/dto/login.dto';
 import { Request } from 'express';
@@ -29,5 +30,9 @@ import { Request } from 'express';
 @ApiBearerAuth('accessToken')
 @Controller({ version: '1', path: 'calls' })
 export class CallsController {
-  constructor(private readonly callService: CallService) {}
+  constructor(private readonly callService: CallService) { }
+  @Post('translation_error')
+  async getCallHistory(@Body() body: TranslationErrorDto) {
+    return this.callService.handleTranslationError(body);
+  }
 }

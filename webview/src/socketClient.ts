@@ -1,5 +1,5 @@
 import { Socket, io } from "socket.io-client";
-import { incomingCallEvents, mediaSocketEvents } from "./events";
+import { incomingCallEvents, mediaSocketEvents, translationEvents } from "./events";
 import { sendRNMessage } from "./utils/utils";
 
 class SocketClient {
@@ -13,7 +13,7 @@ class SocketClient {
   }
 
   connect(userId: string) {
-    const socket = this.io("https://9d273fb24076.ngrok-free.app", {
+    const socket = this.io("http://9d273fb24076.ngrok-free.app", {
       query: { userId },
       transports: ["websocket"],
     });
@@ -41,13 +41,15 @@ class SocketClient {
     haddleNewProducer: any,
     handleCallAnswered: any,
     handleCallTerminated: any,
-    handleReceiveMessage: any
+    handleReceiveMessage: any,
+    onTranslationError: any
   ) {
     const socket = this.getSocket();
     socket?.on(incomingCallEvents.INCOMING_CALL, handleIncomingCall);
     socket?.on(mediaSocketEvents.NEW_PRODUCER, haddleNewProducer);
     socket?.on(incomingCallEvents.CALL_ANSWERED, handleCallAnswered);
     socket?.on(incomingCallEvents.TERMINATE_CALL, handleCallTerminated);
+    socket?.on(translationEvents.TRANSLATION_ERROR, onTranslationError)
     socket?.on("receive_message", handleReceiveMessage);
   }
 
@@ -56,13 +58,15 @@ class SocketClient {
     haddleNewProducer: any,
     handleCallAnswered: any,
     handleCallTerminated: any,
-    handleReceiveMessage: any
+    handleReceiveMessage: any,
+    onTranslationError: any
   ) {
     const socket = this.getSocket();
     socket?.off(incomingCallEvents.INCOMING_CALL, handleIncomingCall);
     socket?.off(mediaSocketEvents.NEW_PRODUCER, haddleNewProducer);
     socket?.off(incomingCallEvents.CALL_ANSWERED, handleCallAnswered);
     socket?.off(incomingCallEvents.TERMINATE_CALL, handleCallTerminated);
+    socket?.off(translationEvents.TRANSLATION_ERROR, onTranslationError)
     socket?.off("receive_message", handleReceiveMessage);
   }
 

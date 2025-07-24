@@ -10,7 +10,11 @@ import { useEffect, useState } from "react";
 import { outGoingCallEvents, translationEvents } from "./events";
 import "./App.css";
 
-import type { AnswerCallDto, StartCallDto } from "./types";
+import type {
+  AnswerCallDto,
+  CallTranslationContext,
+  StartCallDto,
+} from "./types";
 import type { CallDetails } from "./types";
 import type {
   answerCallRes,
@@ -73,13 +77,42 @@ function App() {
           haddleNewProducer,
           handleCallAnswered,
           handleCallTerminated,
-          handleReceiveMessage
+          handleReceiveMessage,
+          onTranslationError
         );
       }, 1000);
     } catch (err) {
       console.error("web::", err);
     }
   }
+
+  async function onTranslationError(
+    callTranslationContext: CallTranslationContext
+  ) {
+    console.log("onTranslationStopped", callTranslationContext);
+    const callDetails = callState;
+    if (!callDetails || callDetails.state !== "ongoing") return;
+    const participant = mediaConsumers.remoteVideoData?.find(
+      (p) => p.userId === callTranslationContext.callContext.speaker
+    );
+    if (!participant) {
+      console.warn("Terminating translation failed, participant not found");
+      return;
+    }
+    participant.translatedAudioConsumer?.close();
+    participant.translatedAudioTrack?.stop();
+    console.info("Terminated translation");
+    if (!participant?.audioProducerId) {
+      console.info("Reconnecting translation failed, audio producer not found");
+      return;
+    }
+    initiateTranslation(
+      callDetails.roomId,
+      participant.audioProducerId,
+      participant.participantId
+    );
+  }
+
   async function initiateTranslation(
     roomId: string,
     producerId: string,
@@ -186,6 +219,13 @@ function App() {
         });
         if (producers && producers.length > 0) {
           producers.forEach(async (producer: any) => {
+            if (producer.kind === "audio") {
+              initiateTranslation(
+                roomId,
+                producer.id,
+                producer.producerClientId
+              );
+            }
             const consumer = await mediaConsumers.consume(
               producer.id,
               roomId,
@@ -261,6 +301,9 @@ function App() {
       let prevDevice = device;
       if (!device) {
         prevDevice = await mediaDevice.initializeDevice(roomId, rtpCapabilites);
+      }
+      if (kind === "audio") {
+        initiateTranslation(roomId, producerId, clientId);
       }
       mediaConsumers.consume(
         producerId,
@@ -382,7 +425,8 @@ function App() {
         haddleNewProducer,
         handleCallAnswered,
         handleCallTerminated,
-        handleReceiveMessage
+        handleReceiveMessage,
+        onTranslationError
       );
     };
   }, []);

@@ -74,4 +74,5 @@ export const mediaSocketEvents = {
 
 export const translationEvents = {
   INITIATE_TRANSLATION: "INITIATE_TRANSLATION",
+  TRANSLATION_ERROR: "TRANSLATION_ERROR",
 };
