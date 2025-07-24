@@ -3,7 +3,7 @@ name: Publish to npm
 on:
   push:
     tags:
-      - "v*" # Only on version tags like v0.1.0
+      - "v*"
 
 jobs:
   publish:
@@ -24,7 +24,12 @@ jobs:
           corepack enable
           corepack prepare yarn@3.6.1 --activate
 
-      - name: Install dependencies (Yarn 3)
+      - name: Check Yarn version
+        run: |
+          yarn --version
+          yarn config -v
+
+      - name: Install dependencies
         run: yarn install --immutable
 
       - name: Build SDK
