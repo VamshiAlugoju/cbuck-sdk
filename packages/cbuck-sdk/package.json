@@ -1,6 +1,6 @@
 {
   "name": "sdk-call",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "sdk",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
@@ -57,7 +57,7 @@
   "homepage": "https://github.com/VamshiAlugoju/sdk-call#readme",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
-     "access": "public"
+    "access": "public"
   },
   "devDependencies": {
     "@commitlint/config-conventional": "^19.6.0",
