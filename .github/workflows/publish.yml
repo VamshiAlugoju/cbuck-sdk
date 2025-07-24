@@ -25,10 +25,10 @@ jobs:
 
       - name: Build package
         working-directory: packages/cbuck-sdk
-        run: yarn build
+        run: yarn prepare
 
       - name: Publish package
         working-directory: packages/cbuck-sdk
-        run: yarn publish --non-interactive
+        run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
