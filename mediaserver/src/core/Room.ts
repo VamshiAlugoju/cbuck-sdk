@@ -139,6 +139,17 @@ export default class Room implements IRoom {
     });
   }
 
+
+  async createPlainRtpTransport(direction: "send" | "recv") {
+    const PUBLIC_IP = process.env.MEDIASOUP_PUBLIC_IP;
+    const plainTransport = await this.router.createPlainTransport({
+      listenIp: { ip: '0.0.0.0', announcedIp: PUBLIC_IP }, // for external access
+      rtcpMux: true,
+      comedia: direction === 'send' ? false : true,  // allow remote to connect first
+    });
+    return plainTransport;
+  }
+
   getDataProducerData() {
     return {
       id: this.dataProducer.id,
@@ -214,7 +225,7 @@ export default class Room implements IRoom {
     });
   }
 
-  async cloneParticipant(participant: Participant, new_participantId: string) {}
+  async cloneParticipant(participant: Participant, new_participantId: string) { }
 
   async createTransportForParticipant(
     participant: Participant,
@@ -278,6 +289,7 @@ export default class Room implements IRoom {
     participants.forEach((participant) => {
       const audioProducer = participant.producers.audio;
       const videoProducer = participant.producers.video;
+
       if (audioProducer) {
         initialProducers.push({
           producer: audioProducer,
@@ -406,6 +418,25 @@ export default class Room implements IRoom {
       }
     });
   }
+
+
+  getParticipantByProducerId(producerId: string): Participant | undefined {
+    for (const participant of this.participants.values()) {
+      if (
+        (participant.producers.audio && participant.producers.audio.id === producerId) ||
+        (participant.producers.video && participant.producers.video.id === producerId)
+      ) {
+        return participant;
+      }
+    }
+    return undefined;
+  }
+
+  cleanTranslationProducers(originalProducerId: string, targetLang: string) {
+
+  }
+
+
 }
 
 // if the room is idle for or if doesn't have any users for 10 min close the room. and make it inactive

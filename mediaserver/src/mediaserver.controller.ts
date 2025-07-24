@@ -14,6 +14,7 @@ import {
   DataConsumerDto,
   CloneParticipantDto,
   StopScreenSharingDto,
+  InitiateTranslationDto,
 } from './dto/transport.dto';
 import { CreateroomDto } from './dto/createRoom.dto';
 
@@ -23,7 +24,7 @@ export class AppController {
     private readonly mediaService: MediaService,
     private readonly appService: AppService,
     private readonly transportService: TransportService,
-  ) {}
+  ) { }
 
   @Post('start_call')
   @UsePipes(new ValidationPipe({ whitelist: true }))
@@ -129,5 +130,12 @@ export class AppController {
   @UsePipes(new ValidationPipe({ whitelist: true }))
   stop_screensharing(@Body() data: StopScreenSharingDto) {
     return this.transportService.stopScreenSharing(data);
+  }
+
+
+  @Post("translate")
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  translate(@Body() data: InitiateTranslationDto) {
+    return this.mediaService.translate(data);
   }
 }

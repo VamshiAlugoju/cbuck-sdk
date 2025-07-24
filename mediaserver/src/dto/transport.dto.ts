@@ -1,5 +1,6 @@
 import { IsString, IsNotEmpty, IsObject, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { CallTranslationContext } from 'src/interfaces/Participant.interface';
 
 export class CreateTransportDto {
   @ApiProperty({ description: 'ID of the room', example: 'room-12345' })
@@ -167,4 +168,31 @@ export class StopScreenSharingDto {
   @IsString()
   @IsNotEmpty()
   roomId: string;
+}
+
+
+
+export class InitiateTranslationDto {
+  @IsString()
+  @IsNotEmpty({ message: 'producerId is required' })
+  producerId: string;
+
+
+  @IsString()
+  @IsNotEmpty({ message: 'roomId is required' })
+  roomId: string;
+
+
+  @IsString()
+  @IsNotEmpty({ message: 'participantId is required' })
+  targetLang: string;
+
+
+  @IsString()
+  @IsNotEmpty({ message: 'initiatedUser is required' })
+  initiatedUser: string
+}
+
+export class StoppedTranslationDto {
+  callContext: CallTranslationContext
 }

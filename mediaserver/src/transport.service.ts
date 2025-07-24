@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { RoomManager } from './core/RoomManager';
@@ -17,10 +18,13 @@ import {
   CloneParticipantDto,
   StopScreenSharingDto,
 } from './dto/transport.dto';
+import { getPort } from './core/ports';
+import { randomInt } from 'crypto';
+import { AppData, Producer } from 'mediasoup/node/lib/types';
 
 @Injectable()
 export class TransportService {
-  constructor(private readonly RoomManager: RoomManager) {}
+  constructor(private readonly RoomManager: RoomManager) { }
 
   private async validateRoom(roomId: string): Promise<Room> {
     const room = await this.RoomManager.getRoomById(roomId);
@@ -87,9 +91,12 @@ export class TransportService {
         rtpParameters,
         appData,
       });
+
       room.addProducer(producer);
+
       return { id: producer.id };
-    } else if (kind === 'video') {
+    }
+    else if (kind === 'video') {
       const producer = await participant.produceVideo({
         kind,
         rtpParameters,
@@ -177,7 +184,6 @@ export class TransportService {
       }
 
       participant?.addConsumer(consumer);
-      console.log(consumer.id, 'consumer id');
       await room?.addConsumer(consumer);
 
       return {

@@ -1,6 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { types } from 'mediasoup';
-import { IParticipant, IClientProducer } from 'src/interfaces/Participant.interface';
+import { IParticipant, IClientProducer, TranslationChannel } from 'src/interfaces/Participant.interface';
 
 export default class Participant implements IParticipant {
   participantId: string;
@@ -18,6 +18,7 @@ export default class Participant implements IParticipant {
     video: false,
   };
   dataConsumer: types.DataConsumer<types.AppData>;
+  translationChannels: Map<string, TranslationChannel> = new Map(); // TODO: Instead of array, use map (map the <producerId>@<targetLang>:TranslationChannel )
   constructor(userId: string, roomId: string, uniqueId: string) {
     this.roomId = roomId;
     this.userId = userId;
@@ -26,7 +27,7 @@ export default class Participant implements IParticipant {
   }
   private logger = new Logger('Participant');
 
-  logData() {}
+  logData() { }
 
   log(data: any) {
     this.logger.log(data);
@@ -130,5 +131,25 @@ export default class Participant implements IParticipant {
     this.producers.video?.close();
     this.consumers.forEach((consumer) => consumer.close());
     this.consumers.clear();
+  }
+
+
+  addTranslationChannel(channel: TranslationChannel) {
+    const keyString = `${channel.originalProducer.id}@${channel.targetLang}`;
+    this.translationChannels.set(keyString, channel);
+  }
+
+  closeTranslationChannel(originalProducerId: string, targetLang: string) {
+    const keyString = `${originalProducerId}@${targetLang}`
+    const translationChannel = this.translationChannels.get(keyString)
+    if (!translationChannel) {
+      this.logger.error(`Translation channel not found for producer ${originalProducerId}`);
+      return;
+    }
+    translationChannel.producer.close()
+    translationChannel.consumer.close()
+    translationChannel.recvTransport.close()
+    translationChannel.sendTransport.close()
+    this.translationChannels.delete(keyString)
   }
 }

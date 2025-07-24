@@ -4,6 +4,12 @@ import { AppService } from './main.service';
 import { RoomManager } from './core/RoomManager';
 import { StartCallDto, AnswerCallDto, ShareScreenDto, CreateroomDto } from './dto';
 import Room from './core/Room';
+import { CreateroomDto } from './dto/createRoom.dto';
+import { InitiateTranslationDto, StoppedTranslationDto } from './dto/transport.dto';
+import { AppData, Producer } from 'mediasoup/node/lib/types';
+import { getPort } from './core/ports';
+import { randomInt } from 'crypto';
+import { CallTranslationContext } from './interfaces/Participant.interface';
 
 @Injectable()
 export class MediaService {
@@ -129,5 +135,134 @@ export class MediaService {
   async getDataProducerData(roomId: string) {
     const room = await this.validateRoom(roomId);
     return room.getDataProducerData();
+  }
+
+  async translate(data: InitiateTranslationDto) {
+    // ---------------- Translation ----------------
+    const { roomId, producerId, targetLang, initiatedUser } = data;
+    const room = await this.validateRoom(roomId);
+    const producer = await room.getProducer(producerId);
+    if (!producer) {
+      throw new NotFoundException('Producer not found');
+    }
+    const participant = room.getParticipantByProducerId(producerId);
+    if (!participant) {
+      throw new NotFoundException('Participant not found');
+    }
+    try {
+      const MEDIASOUP_IP = process.env.MEDIASOUP_PUBLIC_IP;
+      const TRANSLATOR_IP = process.env.TRANSLATOR_IP || '10.10.0.203';
+      let translationProducer: Producer<AppData> | null = null;
+      const remoteRtpPort = getPort();
+
+      // [Mediasoup -> Translator]
+      const translationSendTransport = await room.createPlainRtpTransport('send');
+      await translationSendTransport.connect({
+        ip: TRANSLATOR_IP,
+        port: remoteRtpPort,
+      });
+      const consumer = await translationSendTransport.consume({
+        producerId: producer.id,
+        rtpCapabilities: room.getRtpCapabilities(),
+      });
+      const translationReceiveTransport = await room.createPlainRtpTransport('recv');
+
+      await translationReceiveTransport.connect({
+        ip: MEDIASOUP_IP, // Translator will send audio to this IP
+        port: translationReceiveTransport.tuple.localPort, // Translator will send audio to this port
+      });
+
+      // lets the python translation server know all the parameters for the connection
+      const codec = consumer.rtpParameters.codecs[0];
+      const payloadType = codec.payloadType;
+      const codecName = codec.mimeType.split('/')[1];
+      const clockRate = codec.clockRate;
+      const channels = codec.channels || 2;
+      const ssrc = randomInt(1, 0x7fffffff);
+      const callContext: CallTranslationContext = {
+        roomId: room.roomId,
+        consumerId: consumer.id,
+        speaker: participant.userId,
+        listener: initiatedUser,
+        originalProducerId: producer.id,
+        targetLang: targetLang,
+      };
+      const payload = {
+        producerId: producer.id,
+        rtpPort: remoteRtpPort,
+        ip: translationSendTransport.tuple.localIp,
+        codec: codecName,
+        clockRate,
+        channels,
+        payloadType,
+        ssrc,
+        outputPort: translationReceiveTransport.tuple.localPort,
+        targetLang,
+        // callContext
+        sessionId: '',
+      };
+
+      fetch(`http://${TRANSLATOR_IP}:2002/translation/initiate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log('✅ Translation pipeline initiated:', data);
+        })
+        .catch((error) => {
+          console.error('❌ Error initiating translation pipeline:', error);
+        });
+
+      // Then, a producer is created that will read from the translationReceiveTransport and send it to the client
+      translationProducer = await translationReceiveTransport.produce({
+        kind: 'audio',
+        rtpParameters: {
+          codecs: [
+            {
+              mimeType: 'audio/opus',
+              payloadType,
+              clockRate,
+              channels,
+            },
+          ],
+          encodings: [{ ssrc }],
+        },
+      });
+      Logger.log(
+        `Translation producer created with id: ${translationProducer.id}`,
+        'Translation service',
+      );
+
+      room.addProducer(translationProducer);
+      participant.addTranslationChannel({
+        targetLang,
+        sendTransport: translationSendTransport,
+        recvTransport: translationReceiveTransport,
+        originalProducer: producer,
+        producer: translationProducer,
+        consumer: consumer,
+        intendedToUsers: [initiatedUser],
+      });
+      return {
+        producerId: translationProducer.id,
+        rtpCapabilities: room.getRtpCapabilities(),
+      };
+    } catch (error) {
+      Logger.error(error);
+    }
+
+    // ---------------- Translation ----------------
+  }
+
+  async onTranslationStopped(data: StoppedTranslationDto) {
+    const { callContext } = data;
+    const { consumerId, roomId, originalProducerId } = callContext;
+    const room = await this.validateRoom(roomId);
+    const participant = room.getParticipantByProducerId(callContext.originalProducerId);
+    participant?.closeTranslationChannel(originalProducerId, callContext.targetLang);
   }
 }

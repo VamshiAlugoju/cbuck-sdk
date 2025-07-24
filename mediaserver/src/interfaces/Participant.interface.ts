@@ -23,3 +23,22 @@ export interface IClientProducer {
   audio?: types.Producer | null;
   video?: types.Producer | null;
 }
+
+export interface TranslationChannel {
+  intendedToUsers: string[]; // user who listens the translated audio
+  targetLang: string;
+  sendTransport: types.PlainTransport;
+  recvTransport: types.PlainTransport;
+  originalProducer: types.Producer;
+  producer: types.Producer; // sends audio to ffmpeg
+  consumer: types.Consumer; // receives audio from ffmpeg
+}
+
+export type CallTranslationContext = {
+  roomId: string;
+  consumerId: string;
+  speaker: string;
+  listener: string;
+  originalProducerId: string;
+  targetLang: string
+}
