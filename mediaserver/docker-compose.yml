@@ -1,0 +1,18 @@
+services:
+  mediaserver:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mediasoup-nest-server
+    ports:
+      - '8085:8085' # HTTP API or WebSocket
+      - '40000-40100:40000-40100/udp' # Mediasoup RTP/RTCP ports
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    external: true  # Use the same external network as cb-backend

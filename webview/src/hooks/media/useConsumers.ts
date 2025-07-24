@@ -36,7 +36,9 @@ export type ConsumerCore = {
     roomId: string,
     participantId: string,
     device: types.Device,
-    isScreenSharing?: boolean
+    isScreenSharing?: boolean,
+    isTranslatedAudioProducer?: boolean,
+    originalProducerId?: string
   ) => Promise<void>;
   stopConsuming: () => Promise<void>;
   removeRemoteVideo: ({
@@ -121,13 +123,15 @@ export function useMediasoupConsumers({
     roomId: string,
     participantId: string,
     device: types.Device,
-    isScreenSharing = false
+    isScreenSharing = false,
+    isTranslatedAudioProducer = false,
+    originalProducerId?: string
   ) => {
+    const socket = SocketClient.getSocket();
     const transport =
       consumerTransportRef.current || (await createConsumerTransport(roomId));
     const rtpCapabilities = device.rtpCapabilities;
 
-    const socket = SocketClient.getSocket();
     if (!socket) {
       console.log("Socket not initialized");
       return;
@@ -150,21 +154,60 @@ export function useMediasoupConsumers({
           });
         }
 
-        // setInterval(() => {
-        //   consumer.getStats().then((stats) => {
-        //     const statsArr = Array.from(stats.values());
-        //     statsArr.forEach((stat) => {
-        //       if (stat.type === "inbound-rtp") {
-        //         console.log(stat);
-        //       }
-        //     });
-        //   });
-        // }, 3000);
-
         const track = consumer.track;
         track.onended = () => console.log("Track ended");
         track.onmute = () => console.log("Track muted");
         track.onunmute = () => console.log("Track unmuted");
+
+        setTimeout(() => {
+          if (dataConsumerRef.current === null) {
+            socket.emit(
+              mediaSocketEvents.CONSUME_DATA_PRODCUCER,
+              { roomId },
+              async (data: {
+                id: string;
+                sctpStreamParameters: types.SctpStreamParameters;
+                dataProducerId: string;
+              }) => {
+                dataConsumerRef.current = await transport.consumeData({
+                  id: data.id,
+                  sctpStreamParameters: data.sctpStreamParameters,
+                  dataProducerId: data.dataProducerId,
+                });
+                const consumer = dataConsumerRef.current;
+
+                consumer.addListener("error", (err) => {
+                  console.log(err, "error during consuemr createion");
+                });
+
+                consumer.on("message", (data) => {
+                  const producerData = JSON.parse(data);
+                  const threshold = -40;
+
+                  if (producerData.type === "audio-volumes") {
+                    const volumes: { producerId: string; volume: number }[] =
+                      producerData.volumes;
+                    setProducerSilentMap((prev) => {
+                      const latestVal = { ...prev };
+                      Object.keys(prev).forEach((item) => {
+                        const volumeData = volumes.find((val) => {
+                          return val.producerId === item;
+                        });
+
+                        if (volumeData) {
+                          latestVal[item] = volumeData.volume < threshold;
+                        } else {
+                          latestVal[item] = true;
+                        }
+                      });
+                      return latestVal;
+                    });
+                  }
+                });
+              }
+            );
+          }
+        }, 1 * 1000);
 
         setRemoteVideoData((prev) => {
           const index = prev.findIndex(
@@ -175,10 +218,17 @@ export function useMediasoupConsumers({
             const updated = [...prev];
             const existing = updated[index];
 
-            if (data.kind === "audio") {
+            if (data.kind === "audio" && isTranslatedAudioProducer) {
+              existing.translatedAudioConsumer = consumer;
+              existing.translatedAudioTrack = track;
+              existing.audioProducerId = originalProducerId;
+            } else if (data.kind === "audio" && !isTranslatedAudioProducer) {
               existing.audioConsumer = consumer;
+              existing.audioTrack = track;
+              existing.audioProducerId = data.producerId;
             } else if (data.kind === "video") {
               existing.videoConsumer = consumer;
+              existing.videoTrack = track;
             }
 
             updated[index] = existing;
@@ -192,6 +242,14 @@ export function useMediasoupConsumers({
 
               client: data.participant.client,
               isScreenSharing,
+              translatedAudioConsumer:
+                data.kind === "audio" && isTranslatedAudioProducer
+                  ? consumer
+                  : null,
+              translatedAudioTrack:
+                data.kind === "audio" && isTranslatedAudioProducer
+                  ? track
+                  : null,
             };
             if (data.kind === "audio") {
             }
@@ -214,6 +272,105 @@ export function useMediasoupConsumers({
       }
     );
   };
+
+  // const consume = async (
+  //   producerId: string,
+  //   roomId: string,
+  //   participantId: string,
+  //   device: types.Device,
+  //   isScreenSharing = false
+  // ) => {
+  //   const transport =
+  //     consumerTransportRef.current || (await createConsumerTransport(roomId));
+  //   const rtpCapabilities = device.rtpCapabilities;
+
+  //   const socket = SocketClient.getSocket();
+  //   if (!socket) {
+  //     console.log("Socket not initialized");
+  //     return;
+  //   }
+  //   socket.emit(
+  //     mediaSocketEvents.CONSUME,
+  //     { rtpCapabilities, producerId, roomId, producerClientId: participantId },
+  //     async (data: consumeRes) => {
+  //       if (data.error) return console.error("Consume error:", data);
+
+  //       const consumer = await transport.consume({
+  //         id: data.id,
+  //         producerId: data.producerId,
+  //         kind: data.kind,
+  //         rtpParameters: data.rtpParameters,
+  //       });
+  //       if (consumer.kind === "audio") {
+  //         setProducerSilentMap((prev) => {
+  //           return { ...prev, [consumer.producerId]: false };
+  //         });
+  //       }
+
+  //       // setInterval(() => {
+  //       //   consumer.getStats().then((stats) => {
+  //       //     const statsArr = Array.from(stats.values());
+  //       //     statsArr.forEach((stat) => {
+  //       //       if (stat.type === "inbound-rtp") {
+  //       //         console.log(stat);
+  //       //       }
+  //       //     });
+  //       //   });
+  //       // }, 3000);
+
+  //       const track = consumer.track;
+  //       track.onended = () => console.log("Track ended");
+  //       track.onmute = () => console.log("Track muted");
+  //       track.onunmute = () => console.log("Track unmuted");
+
+  //       setRemoteVideoData((prev) => {
+  //         const index = prev.findIndex(
+  //           (p) => p.participantId === data.participantId
+  //         );
+
+  //         if (index !== -1) {
+  //           const updated = [...prev];
+  //           const existing = updated[index];
+
+  //           if (data.kind === "audio") {
+  //             existing.audioConsumer = consumer;
+  //           } else if (data.kind === "video") {
+  //             existing.videoConsumer = consumer;
+  //           }
+
+  //           updated[index] = existing;
+  //           return updated;
+  //         } else {
+  //           const newParticipant: Participant = {
+  //             userId: `${data.participantId}`,
+  //             participantId: data.participantId,
+  //             audioConsumer: data.kind === "audio" ? consumer : null,
+  //             videoConsumer: data.kind === "video" ? consumer : null,
+
+  //             client: data.participant.client,
+  //             isScreenSharing,
+  //           };
+  //           if (data.kind === "audio") {
+  //           }
+
+  //           if (isScreenSharing) {
+  //             setScreenSharers((prevScreenSharers) => {
+  //               return [
+  //                 ...prevScreenSharers,
+  //                 { id: data.participantId, idx: prev.length },
+  //               ];
+  //             });
+  //           }
+  //           return [...prev, newParticipant];
+  //         }
+  //       });
+
+  //       socket.emit(mediaSocketEvents.UNPAUSE, { id: data.id, roomId }, () =>
+  //         consumer.resume()
+  //       );
+  //     }
+  //   );
+  // };
 
   const stopConsuming = async () => {
     remoteVideoData.forEach((participant) => {

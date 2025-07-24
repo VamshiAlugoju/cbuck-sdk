@@ -21,6 +21,15 @@
       "problemMatcher": []
     },
     {
+      "label": "Install Mediaserver Dependencies",
+      "type": "shell",
+      "command": "npm install",
+      "options": {
+        "cwd": "${workspaceFolder}/mediaserver"
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "Install Root Dependencies",
       "type": "shell",
       "command": "yarn install",

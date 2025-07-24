@@ -52,8 +52,7 @@ export const incomingCallEvents = {
   CALL_ANSWERED: "CALL_ANSWERED",
 
   CALL_IGNORED: "CALL_IGNORED",
-  TERMINATE_CALL: 'calls:terminate',
-
+  TERMINATE_CALL: "calls:terminate",
 };
 
 // export type CallSocketEventValue =
@@ -71,4 +70,8 @@ export const mediaSocketEvents = {
   GET_PRODUCERS: "GET_PRODUCERS",
   NEW_PRODUCER: "NEW_PRODUCER",
   CONSUME_DATA_PRODCUCER: "CONSUME_DATA_PRODCUCER",
+};
+
+export const translationEvents = {
+  INITIATE_TRANSLATION: "INITIATE_TRANSLATION",
 };

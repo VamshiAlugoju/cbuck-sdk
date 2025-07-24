@@ -24,6 +24,17 @@
 
       "preLaunchTask": "Install Backend Dependencies"
     },
+    {
+      "name": "Debug Mediaserver (CLI)",
+      "type": "pwa-node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/mediaserver",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "start:debug"],
+      "console": "integratedTerminal",
+
+      "preLaunchTask": "Install Mediaserver Dependencies"
+    },
 
     {
       "name": "Launch React Native App (yarn example android)",

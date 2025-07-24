@@ -40,26 +40,30 @@ class SocketClient {
     handleIncomingCall: any,
     haddleNewProducer: any,
     handleCallAnswered: any,
-    handleCallTerminated: any
+    handleCallTerminated: any,
+    handleReceiveMessage: any
   ) {
     const socket = this.getSocket();
     socket?.on(incomingCallEvents.INCOMING_CALL, handleIncomingCall);
     socket?.on(mediaSocketEvents.NEW_PRODUCER, haddleNewProducer);
     socket?.on(incomingCallEvents.CALL_ANSWERED, handleCallAnswered);
     socket?.on(incomingCallEvents.TERMINATE_CALL, handleCallTerminated);
+    socket?.on("receive_message", handleReceiveMessage);
   }
 
   removeSocketListeners(
     handleIncomingCall: any,
     haddleNewProducer: any,
     handleCallAnswered: any,
-    handleCallTerminated: any
+    handleCallTerminated: any,
+    handleReceiveMessage: any
   ) {
     const socket = this.getSocket();
     socket?.off(incomingCallEvents.INCOMING_CALL, handleIncomingCall);
     socket?.off(mediaSocketEvents.NEW_PRODUCER, haddleNewProducer);
     socket?.off(incomingCallEvents.CALL_ANSWERED, handleCallAnswered);
     socket?.off(incomingCallEvents.TERMINATE_CALL, handleCallTerminated);
+    socket?.off("receive_message", handleReceiveMessage);
   }
 
   getSocket(): Socket | null {

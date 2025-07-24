@@ -19,7 +19,7 @@ export const CallBridge = () => {
 
   async function getWebViewUrl() {
     // todo : get url from backend
-    return 'https://69b4f255b310.ngrok-free.app/';
+    return 'https://fa16ee244dcc.ngrok-free.app/';
   }
 
   async function initializeWebview() {
@@ -36,11 +36,10 @@ export const CallBridge = () => {
   }, []);
 
   return (
-    <View style={{ width: '100%', height: 0, overflow: 'hidden' }}>
+    <View style={{ width: '100%', height: '50%', overflow: 'hidden' }}>
       <WebView
         style={{
           width: '100%',
-          height: 0,
         }}
         ref={(ref) => {
           Client.setWebViewRef(ref);

@@ -1,4 +1,4 @@
-import { use, useRef } from "react";
+import { useRef } from "react";
 import { Device, types } from "mediasoup-client";
 
 import { useMediasoupProducers } from "./hooks/media/useMediasoupProducers";
@@ -7,10 +7,10 @@ import { useMediasoupConsumers } from "./hooks/media/useConsumers";
 
 import { useEffect, useState } from "react";
 
-import { outGoingCallEvents } from "./events";
+import { outGoingCallEvents, translationEvents } from "./events";
 import "./App.css";
 
-import type { AnswerCallDto, RejectCallDto, StartCallDto } from "./types";
+import type { AnswerCallDto, StartCallDto } from "./types";
 import type { CallDetails } from "./types";
 import type {
   answerCallRes,
@@ -20,6 +20,7 @@ import type {
 import type { DeviceCore } from "./context/RtcProvider";
 import SocketClient from "./socketClient";
 import { sendRNMessage } from "./utils/utils";
+import type { Message } from "postcss";
 
 const defaultCallDetails: CallDetails = {
   callId: "",
@@ -42,7 +43,8 @@ type RNMessageType =
   | "reconnect"
   | "toggleAudioMute"
   | "toggleVideoMute"
-  | "init";
+  | "init"
+  | "translateAudio";
 
 type RNMessage = {
   type: RNMessageType;
@@ -69,13 +71,49 @@ function App() {
           handleIncomingCall,
           haddleNewProducer,
           handleCallAnswered,
-          handleCallTerminated
+          handleCallTerminated,
+          handleReceiveMessage
         );
       }, 1000);
     } catch (err) {
       console.error("web::", err);
     }
   }
+  async function initiateTranslation(
+    roomId: string,
+    producerId: string,
+    clientId: string
+  ) {
+    // if (!config.audioTranslationEnabled) return;
+    console.info("Initiating translation for: ", clientId);
+    const targetLang = "eng";
+    const socket = SocketClient.getSocket();
+    socket?.emit(
+      translationEvents.INITIATE_TRANSLATION,
+      { roomId, producerId, targetLang },
+      async (data: any) => {
+        const device = mediaDevice.getDevice();
+        let prevDevice = device;
+        if (!device) {
+          prevDevice = await mediaDevice.initializeDevice(
+            roomId,
+            data.rtpCapabilites
+          );
+        }
+        mediaConsumers.consume(
+          data.producerId,
+          roomId,
+          clientId,
+          prevDevice!,
+          false,
+          true,
+          producerId
+        );
+      }
+    );
+  }
+
+  function translateAudio(data: { participantId: string; lang: string }) {}
 
   function handleStartCall(data: {
     apiKey: string;
@@ -299,6 +337,12 @@ function App() {
     );
   }
 
+  const [messages, setMessages] = useState<Message[]>([]);
+
+  const handleReceiveMessage = (message: Message) => {
+    setMessages((prev) => [...prev, message]);
+  };
+
   useEffect(() => {
     // connectUser();
     return () => {
@@ -308,7 +352,8 @@ function App() {
         handleIncomingCall,
         haddleNewProducer,
         handleCallAnswered,
-        handleCallTerminated
+        handleCallTerminated,
+        handleReceiveMessage
       );
     };
   }, []);
@@ -339,6 +384,9 @@ function App() {
         break;
       case "toggleVideoMute":
         toggleVideoMute();
+        break;
+      case "translateAudio":
+        translateAudio(payload.data);
         break;
     }
   };

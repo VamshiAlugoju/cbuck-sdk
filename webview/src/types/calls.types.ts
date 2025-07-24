@@ -75,6 +75,9 @@ export interface Participant {
   isVideoPaused?: boolean;
   isAudioPaused?: boolean;
   isScreenSharing?: boolean;
+  audioProducerId?: string;
+  translatedAudioTrack: MediaStreamTrack | null;
+  translatedAudioConsumer: types.Consumer<types.AppData> | null;
 }
 export type producerT = {
   audioProducer?: types.Producer | null;
