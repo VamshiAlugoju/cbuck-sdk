@@ -44,7 +44,8 @@ type RNMessageType =
   | "toggleAudioMute"
   | "toggleVideoMute"
   | "init"
-  | "translateAudio";
+  | "translateAudio"
+  | "send_message";
 
 type RNMessage = {
   type: RNMessageType;
@@ -340,7 +341,35 @@ function App() {
   const [messages, setMessages] = useState<Message[]>([]);
 
   const handleReceiveMessage = (message: Message) => {
-    setMessages((prev) => [...prev, message]);
+    console.log("web::", message, "handleReceiveMessage at App.tsx ");
+    window.ReactNativeWebView.postMessage(
+      JSON.stringify({
+        type: "receive_message",
+        data: message,
+      })
+    );
+  };
+
+  const handleSend = ({
+    text,
+    receiverId,
+    senderId,
+  }: {
+    text: string;
+    receiverId: string;
+    senderId: string;
+  }) => {
+    console.log("web::", text, receiverId, "handleSend at App.tsx ");
+    const socket = SocketClient.getSocket();
+    if (!socket) return;
+
+    const message = {
+      sender: senderId,
+      receiver: receiverId,
+      text: text.trim(),
+    };
+
+    socket.emit("send_message", message);
   };
 
   useEffect(() => {
@@ -387,6 +416,9 @@ function App() {
         break;
       case "translateAudio":
         translateAudio(payload.data);
+        break;
+      case "send_message":
+        handleSend(payload.data);
         break;
     }
   };

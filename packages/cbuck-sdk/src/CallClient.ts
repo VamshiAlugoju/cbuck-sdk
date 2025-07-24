@@ -23,6 +23,7 @@ class CallClient {
     onCallStateChange?: (state: CallDetails) => void;
     onParticipantUpdate?: (participants: Participant[]) => void;
     onCallAnswered?: (callDetails: CallDetails) => void;
+    onReceiveMessage?: (message: string) => void;
     onError?: (error: Error) => void;
   } = {};
 
@@ -206,6 +207,24 @@ class CallClient {
   ): void {
     this._callbacks.onParticipantUpdate = callback;
   }
+  public onReceiveMessage(callback: (message: string) => void): void {
+    this._callbacks.onReceiveMessage = callback;
+  }
+
+  public sendMessage(data: {
+    text: string;
+    receiverId: string;
+    senderId: string;
+  }): void {
+    this.validateSetup();
+    const payload: RNMessage = {
+      type: 'send_message',
+      data: {
+        ...data,
+      },
+    };
+    this.sendCustomRNMessage(payload);
+  }
 
   public onError(callback: (error: Error) => void): void {
     this._callbacks.onError = callback;
@@ -247,6 +266,9 @@ class CallClient {
         case 'ackFromWeb':
           // this._ackFromWeb = true;
           break;
+        case 'receive_message':
+          this._callbacks.onReceiveMessage?.(data.data);
+          break;
         case 'error':
           this._callbacks.onError?.(new Error(data.message));
           break;
@@ -274,6 +296,7 @@ class CallClient {
     this._callbacks.onCallAnswered = undefined;
     this._callbacks.onParticipantUpdate = undefined;
     this._callbacks.onError = undefined;
+    this._callbacks.onReceiveMessage = undefined;
   }
 }
 
@@ -285,7 +308,8 @@ type RNMessageType =
   | 'reconnect'
   | 'toggleAudioMute'
   | 'toggleVideoMute'
-  | 'init';
+  | 'init'
+  | 'send_message';
 
 type RNMessage = {
   type: RNMessageType;

@@ -124,7 +124,9 @@ export const MessageComp = ({ message, selfId }: MessageCompProps) => {
 
   return (
     <div
-      className={`flex relative gap-2 ${isOwnMessage ? "justify-end" : "justify-start"}`}
+      className={`flex relative gap-2 ${
+        isOwnMessage ? "justify-end" : "justify-start"
+      }`}
     >
       <div
         className={`max-w-[70%] shadow-sm py-1 px-2 rounded ${

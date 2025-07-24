@@ -16,6 +16,12 @@ export default function App() {
     uniqueId: Math.floor(Math.random() * 1000).toString(),
   });
 
+  const [messages, setMessages] = useState<any[]>([]);
+  const [selfMessage, setSelfMessage] = useState<string>('');
+  useEffect(() => {
+    console.log('messages', messages);
+  }, [messages]);
+
   const [showIncomingCall, setShowIncomingCall] = useState(false);
 
   const [recipientId, setRecipientId] = useState('');
@@ -27,6 +33,10 @@ export default function App() {
 
   function handleIncomingCall(payload: any) {
     setShowIncomingCall(true);
+  }
+
+  function handleReceiveMessage(message: any) {
+    setMessages((prev) => [...prev, message]);
   }
 
   function handleCallAnswered(payload: any) {
@@ -47,6 +57,7 @@ export default function App() {
     Client.onIncomingCall(handleIncomingCall);
     Client.onCallStateChange(handleCallStateChange);
     Client.onCallAnswered(handleCallAnswered);
+    Client.onReceiveMessage(handleReceiveMessage);
 
     return () => {
       Client.cleanUp();
@@ -141,6 +152,34 @@ export default function App() {
           </TouchableOpacity>
         </View>
       )}
+      <TextInput
+        placeholder="Enter message"
+        value={selfMessage}
+        onChangeText={(text) => setSelfMessage(text)}
+        style={{
+          marginTop: 20,
+        }}
+      />
+      <TouchableOpacity
+        style={{
+          marginTop: 20,
+          backgroundColor: 'orange',
+          padding: 10,
+          alignItems: 'center',
+        }}
+        onPress={() => {
+          if (selfMessage.trim() !== '' && recipientId.trim() !== '') {
+            Client.sendMessage({
+              text: selfMessage,
+              receiverId: recipientId,
+              senderId: user.uniqueId,
+            });
+            setSelfMessage('');
+          }
+        }}
+      >
+        <Text>Send Message</Text>
+      </TouchableOpacity>
     </View>
   );
 }
