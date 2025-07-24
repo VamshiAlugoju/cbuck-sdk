@@ -3,7 +3,7 @@ name: Publish to npm
 on:
   push:
     branches:
-      - main
+      - master
     paths:
       - "packages/**"
 
@@ -20,10 +20,15 @@ jobs:
           node-version: "20"
           registry-url: "https://registry.npmjs.org"
 
-      - run: npm ci
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build package
+        working-directory: packages/cbuck-sdk
+        run: yarn build
 
       - name: Publish package
         working-directory: packages/cbuck-sdk
-        run: npm publish
+        run: yarn publish --non-interactive
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
