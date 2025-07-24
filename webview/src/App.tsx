@@ -350,23 +350,23 @@ function App() {
     );
   };
 
-  const handleSend = ({
-    text,
-    receiverId,
-    senderId,
-  }: {
-    text: string;
-    receiverId: string;
+  type sendmessageT = {
+    id: string;
     senderId: string;
-  }) => {
+    receiverId: string;
+    text: string;
+  };
+
+  const handleSend = ({ text, receiverId, senderId, id }: sendmessageT) => {
     console.log("web::", text, receiverId, "handleSend at App.tsx ");
     const socket = SocketClient.getSocket();
     if (!socket) return;
 
-    const message = {
-      sender: senderId,
-      receiver: receiverId,
+    const message: sendmessageT = {
+      senderId,
+      receiverId,
       text: text.trim(),
+      id: id,
     };
 
     socket.emit("send_message", message);

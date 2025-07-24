@@ -10,6 +10,8 @@ export type {
   CallType,
   Participant,
   CallSdk,
+  sendmessageParams,
+  IMessage,
 } from './types';
 
 export { CallBridge, Client };

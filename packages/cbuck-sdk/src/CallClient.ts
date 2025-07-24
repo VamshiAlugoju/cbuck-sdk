@@ -2,6 +2,7 @@ import type {
   Config,
   CallDetails,
   Participant,
+  sendmessageParams,
   StartCallParams,
 } from './types.ts';
 import type { WebView } from 'react-native-webview';
@@ -211,11 +212,7 @@ class CallClient {
     this._callbacks.onReceiveMessage = callback;
   }
 
-  public sendMessage(data: {
-    text: string;
-    receiverId: string;
-    senderId: string;
-  }): void {
+  public sendMessage(data: sendmessageParams): void {
     this.validateSetup();
     const payload: RNMessage = {
       type: 'send_message',
@@ -281,6 +278,7 @@ class CallClient {
   }
 
   private sendCustomRNMessage = (payload: RNMessage) => {
+    console.log('sendCustomRNMessage', payload);
     const jsToInject = `
       window.dispatchEvent(new CustomEvent('rn-message', {
         detail: ${JSON.stringify(payload)}

@@ -1,13 +1,21 @@
 import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class SendMessageDto {
-    @IsNotEmpty()
-    @IsString()
-    receiver: string;
+  @IsNotEmpty()
+  @IsString()
+  receiverId: string;
 
-    @IsNotEmpty()
-    @IsString()
-    text: string;
+  @IsNotEmpty()
+  @IsString()
+  senderId: string;
+
+  @IsNotEmpty()
+  @IsString()
+  text: string;
+
+  @IsNotEmpty()
+  @IsString()
+  id: string;
 }
 
 export class MessageHistoryDto {

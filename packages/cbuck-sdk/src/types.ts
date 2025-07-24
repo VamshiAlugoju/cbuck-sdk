@@ -12,6 +12,20 @@ export interface Participant {
   isAudioPaused?: boolean;
 }
 
+export type sendmessageParams = {
+  id: string;
+  senderId: string;
+  receiverId: string;
+  text: string;
+};
+
+export interface IMessage {
+  id: string;
+  senderId: string;
+  receiverId: string;
+  text: string;
+}
+
 export type CallState = 'idle' | 'incoming' | 'ongoing' | 'outgoing';
 export type CallType = 'audio' | 'video';
 
