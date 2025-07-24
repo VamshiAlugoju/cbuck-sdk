@@ -2,33 +2,35 @@ name: Publish to npm
 
 on:
   push:
-    branches:
-      - main
     tags:
-      - "v*"
+      - "v*" # Only on version tags like v0.1.0
 
 jobs:
   publish:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Use Node.js
+      - name: Use Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
-          registry-url: "https://registry.npmjs.org"
+          node-version: 20
+          registry-url: "https://registry.npmjs.org/"
 
-      - name: Install dependencies
-        run: yarn install
+      - name: Set up Yarn v3
+        run: |
+          corepack enable
+          corepack prepare yarn@3.6.1 --activate
 
-      - name: Build package
-        working-directory: packages/cbuck-sdk
+      - name: Install dependencies (Yarn 3)
+        run: yarn install --immutable
+
+      - name: Build SDK
         run: yarn prepare
 
-      - name: Publish package
-        working-directory: packages/cbuck-sdk
+      - name: Publish to npm
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
