@@ -36,7 +36,7 @@ export const CallBridge = () => {
   }, []);
 
   return (
-    <View style={{ width: '100%', height: '50%', overflow: 'hidden' }}>
+    <View style={{ width: '100%', height: 0, overflow: 'hidden' }}>
       <WebView
         style={{
           width: '100%',
