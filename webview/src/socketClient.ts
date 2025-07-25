@@ -1,5 +1,9 @@
 import { Socket, io } from "socket.io-client";
-import { incomingCallEvents, mediaSocketEvents, translationEvents } from "./events";
+import {
+  incomingCallEvents,
+  mediaSocketEvents,
+  translationEvents,
+} from "./events";
 import { sendRNMessage } from "./utils/utils";
 
 class SocketClient {
@@ -42,15 +46,17 @@ class SocketClient {
     handleCallAnswered: any,
     handleCallTerminated: any,
     handleReceiveMessage: any,
-    onTranslationError: any
+    onTranslationError: any,
+    onCallRejected: any
   ) {
     const socket = this.getSocket();
     socket?.on(incomingCallEvents.INCOMING_CALL, handleIncomingCall);
     socket?.on(mediaSocketEvents.NEW_PRODUCER, haddleNewProducer);
     socket?.on(incomingCallEvents.CALL_ANSWERED, handleCallAnswered);
     socket?.on(incomingCallEvents.TERMINATE_CALL, handleCallTerminated);
-    socket?.on(translationEvents.TRANSLATION_ERROR, onTranslationError)
+    socket?.on(translationEvents.TRANSLATION_ERROR, onTranslationError);
     socket?.on("receive_message", handleReceiveMessage);
+    socket?.on(incomingCallEvents.CALL_REJECTED, onCallRejected);
   }
 
   removeSocketListeners(
@@ -59,15 +65,17 @@ class SocketClient {
     handleCallAnswered: any,
     handleCallTerminated: any,
     handleReceiveMessage: any,
-    onTranslationError: any
+    onTranslationError: any,
+    onCallRejected: any
   ) {
     const socket = this.getSocket();
     socket?.off(incomingCallEvents.INCOMING_CALL, handleIncomingCall);
     socket?.off(mediaSocketEvents.NEW_PRODUCER, haddleNewProducer);
     socket?.off(incomingCallEvents.CALL_ANSWERED, handleCallAnswered);
     socket?.off(incomingCallEvents.TERMINATE_CALL, handleCallTerminated);
-    socket?.off(translationEvents.TRANSLATION_ERROR, onTranslationError)
+    socket?.off(translationEvents.TRANSLATION_ERROR, onTranslationError);
     socket?.off("receive_message", handleReceiveMessage);
+    socket?.off(incomingCallEvents.CALL_REJECTED, onCallRejected);
   }
 
   getSocket(): Socket | null {
