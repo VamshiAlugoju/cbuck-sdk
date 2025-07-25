@@ -399,12 +399,10 @@ function App() {
 
   const handleReceiveMessage = async (message: Message) => {
     console.log("web::", message, "handleReceiveMessage at App.tsx ");
-    const translatedMessage = await translateText(message.text, targetLanguage);
-    const newMessage = { ...message, translatedText: translatedMessage };
     window.ReactNativeWebView.postMessage(
       JSON.stringify({
         type: "receive_message",
-        data: newMessage,
+        data: message,
       })
     );
   };
@@ -414,6 +412,7 @@ function App() {
     senderId: string;
     receiverId: string;
     text: string;
+    targetLang: string
   };
 
   const handleSend = ({ text, receiverId, senderId, id }: sendmessageT) => {
@@ -426,6 +425,7 @@ function App() {
       receiverId,
       text: text.trim(),
       id: id,
+      targetLang: targetLanguage,
     };
 
     socket.emit("send_message", message);

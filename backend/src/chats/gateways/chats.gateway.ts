@@ -9,6 +9,7 @@ import { SocketService } from 'src/socket/services/socket.service';
 import { getAllSessions, getSocketId } from 'src/utils/socketStore';
 import { Services } from 'src/common/constants/interfaces.constants';
 import { ISocketService } from 'src/socket/interfaces/socketService.interface';
+import { translateText } from 'src/utils/translateText';
 
 @WebSocketGateway()
 @UseFilters(new WebSocketExceptionFilter())
@@ -24,12 +25,13 @@ export class ChatsGateway extends BaseLogger {
     this.logger.log(`Received message: ${JSON.stringify(payload)}`);
     const io = this.socketService.getServerInstance();
     const receiverSockerId = await getSocketId(payload.receiverId);
+    const translatedText = await translateText(payload.text, payload.targetLang || 'tel');
     if (!receiverSockerId) {
       return {
         error: `Receiver with ID ${payload.receiverId} is not connected.`,
       };
     }
-    io.to(receiverSockerId).emit(chatEvents.RECEIVE_MESSAGE, payload);
+    io.to(receiverSockerId).emit(chatEvents.RECEIVE_MESSAGE, {...payload, translatedText: translatedText});
     this.logger.log(`Message sent to ${payload.receiverId}`);
   }
 }
