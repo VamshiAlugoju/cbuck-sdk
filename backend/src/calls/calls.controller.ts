@@ -35,4 +35,11 @@ export class CallsController {
   async getCallHistory(@Body() body: TranslationErrorDto) {
     return this.callService.handleTranslationError(body);
   }
+
+  @Get('is_original_audio_enabled')
+  async isOriginalAudioEnabled() {
+    return {
+      isOriginalAudioEnabled: false,
+    };
+  }
 }

@@ -277,6 +277,15 @@ class CallClient {
     }
   }
 
+  public changeLanguage (newLanguage: string){
+    this.validateSetup();
+    const payload: RNMessage = {
+      type: 'languageChange',
+      data: newLanguage,
+    };
+    this.sendCustomRNMessage(payload);
+  }
+
   private sendCustomRNMessage = (payload: RNMessage) => {
     console.log('sendCustomRNMessage', payload);
     const jsToInject = `
@@ -307,7 +316,9 @@ type RNMessageType =
   | 'toggleAudioMute'
   | 'toggleVideoMute'
   | 'init'
-  | 'send_message';
+  | 'send_message'
+  | "languageChange"
+  ;
 
 type RNMessage = {
   type: RNMessageType;

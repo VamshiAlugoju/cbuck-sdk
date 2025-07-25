@@ -23,7 +23,7 @@ import type {
 } from "./types/calls.types";
 import type { DeviceCore } from "./context/RtcProvider";
 import SocketClient from "./socketClient";
-import { sendRNMessage } from "./utils/utils";
+import { isOriginalAudioEnabled, sendRNMessage } from "./utils/utils";
 import type { Message } from "postcss";
 
 const defaultCallDetails: CallDetails = {
@@ -49,7 +49,8 @@ type RNMessageType =
   | "toggleVideoMute"
   | "init"
   | "translateAudio"
-  | "send_message";
+  | "send_message"
+  | "languageChange";
 
 type RNMessage = {
   type: RNMessageType;
@@ -58,6 +59,8 @@ type RNMessage = {
 
 function App() {
   const [userId, setUserId] = useState("");
+  const [targetLanguage, setTargetLanguage] = useState("eng");
+  const [originalAudioEnabled, setOriginalAudioEnabled] = useState(false);
   // const [apiKey, setApiKey] = useState("");
 
   const [callState, setCallState] = useState<CallDetails>(defaultCallDetails);
@@ -66,6 +69,8 @@ function App() {
     connectUser(payload.uniqueId);
     setUserId(payload.uniqueId);
     // setApiKey(payload.apiKey);
+    const _enabled = await isOriginalAudioEnabled();
+    setOriginalAudioEnabled(_enabled);
   }
 
   async function connectUser(userId: string) {
@@ -121,7 +126,7 @@ function App() {
   ) {
     // if (!config.audioTranslationEnabled) return;
     console.info("Initiating translation for: ", clientId);
-    const targetLang = "eng";
+    const targetLang = targetLanguage || "eng";
     const socket = SocketClient.getSocket();
     socket?.emit(
       translationEvents.INITIATE_TRANSLATION,
@@ -227,6 +232,7 @@ function App() {
                 producer.producerClientId
               );
             }
+            if(!originalAudioEnabled) return;
             const consumer = await mediaConsumers.consume(
               producer.id,
               roomId,
@@ -311,6 +317,7 @@ function App() {
       if (kind === "audio") {
         initiateTranslation(roomId, producerId, clientId);
       }
+      if (!originalAudioEnabled) return;
       mediaConsumers.consume(
         producerId,
         roomId,
@@ -421,6 +428,10 @@ function App() {
     socket.emit("send_message", message);
   };
 
+  const handleLanguageChange = (language: string) => {
+    setTargetLanguage(language);
+  };
+
   useEffect(() => {
     // connectUser();
     return () => {
@@ -470,6 +481,9 @@ function App() {
         break;
       case "send_message":
         handleSend(payload.data);
+        break;
+      case "languageChange":
+        handleLanguageChange(payload.data);
         break;
     }
   };
