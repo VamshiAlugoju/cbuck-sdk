@@ -17,12 +17,13 @@ export type Message = {
 };
 
 export const translateText = async (text: string, targetLang: string) => {
-  return `🤦‍♂️ ${text}`;
+  // return `🤦‍♂️ ${text}`;
   const payload = {
     text: text,
-    targetLang: targetLang,
+    tgt_lang: targetLang,
+    src_lang: "eng",
   };
-  const res = await fetch(`http://localhost:3000/translate`, {
+  const res = await fetch(`http://10.10.0.203:8000/translate`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -30,5 +31,5 @@ export const translateText = async (text: string, targetLang: string) => {
     body: JSON.stringify(payload),
   });
   const data = await res.json();
-  return data;
+  return data.translation;
 };

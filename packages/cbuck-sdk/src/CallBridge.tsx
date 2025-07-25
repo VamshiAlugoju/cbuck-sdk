@@ -19,7 +19,7 @@ export const CallBridge = () => {
 
   async function getWebViewUrl() {
     // todo : get url from backend
-    return 'https://fa16ee244dcc.ngrok-free.app/';
+    return 'https://astonishing-pegasus-8017a2.netlify.app/';
   }
 
   async function initializeWebview() {
