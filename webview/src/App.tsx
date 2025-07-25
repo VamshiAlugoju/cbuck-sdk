@@ -93,6 +93,32 @@ function App() {
     }
   }
 
+  
+  useEffect(() => {
+    const socket = SocketClient.getSocket();
+    if (socket) {
+      SocketClient.loadSocketListeners(
+        handleIncomingCall,
+        haddleNewProducer,
+        handleCallAnswered,
+        handleCallTerminated,
+        handleReceiveMessage,
+        onTranslationError,
+        onCallRejected
+      );
+    }
+    return (
+      SocketClient.removeSocketListeners(handleIncomingCall,
+        haddleNewProducer,
+        handleCallAnswered,
+        handleCallTerminated,
+        handleReceiveMessage,
+        onTranslationError,
+        onCallRejected)
+    )
+  }, [targetLanguage])
+
+
   async function onTranslationError(
     callTranslationContext: CallTranslationContext
   ) {
