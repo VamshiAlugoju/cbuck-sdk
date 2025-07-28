@@ -136,7 +136,11 @@ export function useMediasoupProducers({
       if (!transport) throw new Error("No transport available");
 
       const stream = await navigator.mediaDevices.getUserMedia({
-        audio: true,
+        audio: {
+          noiseSuppression: false,
+          echoCancellation: false,
+          autoGainControl: false
+        },
       });
       const track = stream.getAudioTracks()[0];
       if (!track) throw new Error("No audio track available");
