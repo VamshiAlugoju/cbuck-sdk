@@ -9,7 +9,7 @@ export function sendRNMessage({ type, data }: { type: string; data: any }) {
 
 export async function isOriginalAudioEnabled(): Promise<boolean> {
   try {
-    const res = await fetch('https://2a26130b1a3b.ngrok-free.app/calls/is_original_audio_enabled');
+    const res = await fetch('https://98d7ad006ecc.ngrok-free.app/calls/is_original_audio_enabled');
     const data = await res.json();
     return data?.isOriginalAudioEnabled === true;
   } catch (error) {
