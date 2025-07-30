@@ -243,7 +243,7 @@ function App() {
           roomId,
           rtpCapabilites
         );
-        await mediaProducers.createProducerTransport(roomId, callType);
+        // await mediaProducers.createProducerTransport(roomId, callType);
         await mediaConsumers.createConsumerTransport(roomId);
         socket?.emit(outGoingCallEvents.NOTIFY_OWNER, {
           roomId,
