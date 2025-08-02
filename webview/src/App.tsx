@@ -434,6 +434,11 @@ function App() {
 
   const handleReceiveMessage = async (message: Message) => {
     console.log("web::", message, "handleReceiveMessage at App.tsx ");
+    if (targetLangRef.current && targetLangRef.current !== "eng") {
+      const res = await translateText(message.text, message.targetLang);
+      console.log("web:: translated response", res);
+      message.text = res;
+    }
     window.ReactNativeWebView.postMessage(
       JSON.stringify({
         type: "receive_message",
