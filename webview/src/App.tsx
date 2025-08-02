@@ -67,7 +67,7 @@ function App() {
     const id = setInterval(() => {
       console.log("web:: targetLangRef", targetLangRef.current);
     }, 10 * 1000);
-    return clearInterval(id);
+    return () => clearInterval(id);
   }, []);
 
   const [originalAudioEnabled, setOriginalAudioEnabled] = useState(false);
