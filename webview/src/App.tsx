@@ -61,6 +61,15 @@ type RNMessage = {
 function App() {
   const [userId, setUserId] = useState("");
   const [targetLanguage, setTargetLanguage] = useState("eng");
+  const targetLangRef = useRef("eng");
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      console.log("web:: targetLangRef", targetLangRef.current);
+    }, 10 * 1000);
+    return clearInterval(id);
+  }, []);
+
   const [originalAudioEnabled, setOriginalAudioEnabled] = useState(false);
   // const [apiKey, setApiKey] = useState("");
 
@@ -93,7 +102,6 @@ function App() {
     }
   }
 
-  
   useEffect(() => {
     const socket = SocketClient.getSocket();
     if (socket) {
@@ -107,17 +115,16 @@ function App() {
         onCallRejected
       );
     }
-    return (
-      SocketClient.removeSocketListeners(handleIncomingCall,
-        haddleNewProducer,
-        handleCallAnswered,
-        handleCallTerminated,
-        handleReceiveMessage,
-        onTranslationError,
-        onCallRejected)
-    )
-  }, [targetLanguage])
-
+    return SocketClient.removeSocketListeners(
+      handleIncomingCall,
+      haddleNewProducer,
+      handleCallAnswered,
+      handleCallTerminated,
+      handleReceiveMessage,
+      onTranslationError,
+      onCallRejected
+    );
+  }, [targetLanguage]);
 
   async function onTranslationError(
     callTranslationContext: CallTranslationContext
@@ -153,7 +160,9 @@ function App() {
   ) {
     // if (!config.audioTranslationEnabled) return;
     console.info("Initiating translation for: ", clientId);
-    const targetLang = targetLanguage || "eng";
+    // const targetLang = targetLanguage || "eng";
+    const targetLang = targetLangRef.current || "eng";
+
     const socket = SocketClient.getSocket();
     socket?.emit(
       translationEvents.INITIATE_TRANSLATION,
@@ -259,7 +268,7 @@ function App() {
                 producer.producerClientId
               );
             }
-            if(!originalAudioEnabled) return;
+            if (!originalAudioEnabled) return;
             const consumer = await mediaConsumers.consume(
               producer.id,
               roomId,
@@ -438,20 +447,21 @@ function App() {
     senderId: string;
     receiverId: string;
     text: string;
-    targetLang: string
+    targetLang: string;
   };
 
   const handleSend = ({ text, receiverId, senderId, id }: sendmessageT) => {
     console.log("web::", text, receiverId, "handleSend at App.tsx ");
     const socket = SocketClient.getSocket();
     if (!socket) return;
+    const targetLang = targetLangRef.current || "eng";
 
     const message: sendmessageT = {
       senderId,
       receiverId,
       text: text.trim(),
       id: id,
-      targetLang: targetLanguage,
+      targetLang: targetLang,
     };
 
     socket.emit("send_message", message);
@@ -459,6 +469,7 @@ function App() {
 
   const handleLanguageChange = (language: string) => {
     setTargetLanguage(language);
+    targetLangRef.current = language;
   };
 
   useEffect(() => {
