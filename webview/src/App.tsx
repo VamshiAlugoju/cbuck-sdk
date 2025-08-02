@@ -65,7 +65,7 @@ function App() {
 
   useEffect(() => {
     const id = setInterval(() => {
-      console.log("web:: targetLangRef", targetLangRef.current);
+      console.log("web:: targetLangRef -------------", targetLangRef.current);
     }, 10 * 1000);
     return () => clearInterval(id);
   }, []);
