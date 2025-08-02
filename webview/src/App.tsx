@@ -579,10 +579,11 @@ function RenderAudioVideo({ participant }: { participant: Participant }) {
   const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
-    if (participant.audioConsumer && audioRef.current) {
+    if (participant.translatedAudioConsumer && audioRef.current) {
       const stream = new MediaStream();
-      stream.addTrack(participant.audioConsumer.track);
+      stream.addTrack(participant.translatedAudioConsumer.track);
       audioRef.current.srcObject = stream;
+      console.log("web:: -------- stream played ");
       audioRef.current.play();
     }
   }, [participant]);
