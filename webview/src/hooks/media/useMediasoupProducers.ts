@@ -138,8 +138,7 @@ export function useMediasoupProducers({
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
           noiseSuppression: false,
-          echoCancellation: false,
-          autoGainControl: false
+          echoCancellation: true,
         },
       });
       const track = stream.getAudioTracks()[0];
