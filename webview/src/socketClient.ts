@@ -17,12 +17,17 @@ class SocketClient {
   }
 
   connect(userId: string) {
-    const socket = this.io("https://c1261eab0d6f.ngrok-free.app", {
+    // const socket = this.io("https://c1261eab0d6f.ngrok-free.app", {
+    //   query: { userId },
+    //   transports: ["websocket"],
+    // });
+    const socket = this.io("https://fc70102802b4.ngrok-free.app", {
       query: { userId },
       transports: ["websocket"],
     });
+    //https://fc70102802b4.ngrok-free.app/
 
-    socket.on("connect", () => {
+    https: socket.on("connect", () => {
       console.log("newSocket", socket.id, " f  ", userId);
 
       socket.onAny((event, ...args) => {
