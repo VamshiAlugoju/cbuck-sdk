@@ -21,8 +21,9 @@ class SocketClient {
       query: { userId },
       transports: ["websocket"],
     });
+    //https://fc70102802b4.ngrok-free.app/
 
-    socket.on("connect", () => {
+    https: socket.on("connect", () => {
       console.log("newSocket", socket.id, " f  ", userId);
 
       socket.onAny((event, ...args) => {

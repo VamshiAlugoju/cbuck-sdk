@@ -61,6 +61,15 @@ type RNMessage = {
 function App() {
   const [userId, setUserId] = useState("");
   const [targetLanguage, setTargetLanguage] = useState("eng");
+  const targetLangRef = useRef("eng");
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      console.log("web:: targetLangRef -------------", targetLangRef.current);
+    }, 10 * 1000);
+    return () => clearInterval(id);
+  }, []);
+
   const [originalAudioEnabled, setOriginalAudioEnabled] = useState(false);
   // const [apiKey, setApiKey] = useState("");
 
@@ -155,7 +164,9 @@ function App() {
   ) {
     // if (!config.audioTranslationEnabled) return;
     console.info("Initiating translation for: ", clientId);
-    const targetLang = targetLanguage || "eng";
+    // const targetLang = targetLanguage || "eng";
+    const targetLang = targetLangRef.current || "eng";
+
     const socket = SocketClient.getSocket();
     socket?.emit(
       translationEvents.INITIATE_TRANSLATION,
@@ -427,6 +438,11 @@ function App() {
 
   const handleReceiveMessage = async (message: Message) => {
     console.log("web::", message, "handleReceiveMessage at App.tsx ");
+    if (targetLangRef.current && targetLangRef.current !== "eng") {
+      const res = await translateText(message.text, message.targetLang);
+      console.log("web:: translated response", res);
+      message.text = res;
+    }
     window.ReactNativeWebView.postMessage(
       JSON.stringify({
         type: "receive_message",
@@ -447,13 +463,14 @@ function App() {
     console.log("web::", text, receiverId, "handleSend at App.tsx ");
     const socket = SocketClient.getSocket();
     if (!socket) return;
+    const targetLang = targetLangRef.current || "eng";
 
     const message: sendmessageT = {
       senderId,
       receiverId,
       text: text.trim(),
       id: id,
-      targetLang: targetLanguage,
+      targetLang: targetLang,
     };
 
     socket.emit("send_message", message);
@@ -461,6 +478,7 @@ function App() {
 
   const handleLanguageChange = (language: string) => {
     setTargetLanguage(language);
+    targetLangRef.current = language;
   };
 
   const onNewUserJoined = (data: string) => {
@@ -602,10 +620,11 @@ function RenderAudioVideo({ participant }: { participant: Participant }) {
   const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
-    if (participant.audioConsumer && audioRef.current) {
+    if (participant.translatedAudioConsumer && audioRef.current) {
       const stream = new MediaStream();
-      stream.addTrack(participant.audioConsumer.track);
+      stream.addTrack(participant.translatedAudioConsumer.track);
       audioRef.current.srcObject = stream;
+      console.log("web:: -------- stream played ");
       audioRef.current.play();
     }
   }, [participant]);
