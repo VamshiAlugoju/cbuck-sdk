@@ -17,7 +17,7 @@ class SocketClient {
   }
 
   connect(userId: string) {
-    const socket = this.io("https://c1261eab0d6f.ngrok-free.app", {
+    const socket = this.io("https://70de13445cf3.ngrok-free.app", {
       query: { userId },
       transports: ["websocket"],
     });
@@ -47,7 +47,9 @@ class SocketClient {
     handleCallTerminated: any,
     handleReceiveMessage: any,
     onTranslationError: any,
-    onCallRejected: any
+    onCallRejected: any,
+    onNewUserJoined: any,
+    onUserLeft: any
   ) {
     const socket = this.getSocket();
     socket?.on(incomingCallEvents.INCOMING_CALL, handleIncomingCall);
@@ -57,6 +59,8 @@ class SocketClient {
     socket?.on(translationEvents.TRANSLATION_ERROR, onTranslationError);
     socket?.on("receive_message", handleReceiveMessage);
     socket?.on(incomingCallEvents.CALL_REJECTED, onCallRejected);
+    socket?.on("user:online", onNewUserJoined);
+    socket?.on("user:offline", onUserLeft);
   }
 
   removeSocketListeners(

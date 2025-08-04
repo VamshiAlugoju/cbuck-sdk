@@ -6,12 +6,12 @@ import { ISocketService } from '../interfaces/socketService.interface';
 import CallService from 'src/calls/services/implementations/calls.service';
 
 import { SocketEvents } from '../socket.events';
-import { removeSocketSession, storeSocketSession } from 'src/utils/socketStore';
+import { getAllSessions, removeSocketSession, storeSocketSession } from 'src/utils/socketStore';
 @Injectable()
 export class SocketService implements ISocketService {
   private logger = new Logger('WsGateway');
   private io: Server;
-  constructor(private readonly callService: CallService) {}
+  constructor(private readonly callService: CallService) { }
   setServerInstance(server: Server) {
     this.io = server;
   }
@@ -38,7 +38,16 @@ export class SocketService implements ISocketService {
     this.joinRelevantRoom(socket, { userId, deviceId });
 
     await storeSocketSession(userId, socket.id);
+    this.io.except(socket.id).emit(SocketEvents.USER_ONLINE, userId);
+    // Fetch all sessions
+    const allSessions = await getAllSessions();
 
+    // Emit each session individually to this connected user
+    for (const [uid, sid] of Object.entries(allSessions)) {
+      if (uid !== userId) {
+        socket.emit(SocketEvents.USER_ONLINE, uid);
+      }
+    }
     this.emitEventInARoom(userId, 'user:connected', { userId }, socket.id);
   }
 
@@ -47,7 +56,7 @@ export class SocketService implements ISocketService {
 
     const { userId } = socket.data ?? {};
     await removeSocketSession(userId);
-
+    this.io.except(socket.id).emit(SocketEvents.USER_OFFLINE, userId);
     await this.callService.handleDisconnect(socket);
   }
 

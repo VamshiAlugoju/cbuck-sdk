@@ -85,7 +85,9 @@ function App() {
           handleCallTerminated,
           handleReceiveMessage,
           onTranslationError,
-          onCallRejected
+          onCallRejected,
+          onNewUserJoined,
+          onUserLeft
         );
       }, 1000);
     } catch (err) {
@@ -93,7 +95,6 @@ function App() {
     }
   }
 
-  
   useEffect(() => {
     const socket = SocketClient.getSocket();
     if (socket) {
@@ -104,20 +105,21 @@ function App() {
         handleCallTerminated,
         handleReceiveMessage,
         onTranslationError,
-        onCallRejected
+        onCallRejected,
+        onNewUserJoined,
+        onUserLeft
       );
     }
-    return (
-      SocketClient.removeSocketListeners(handleIncomingCall,
-        haddleNewProducer,
-        handleCallAnswered,
-        handleCallTerminated,
-        handleReceiveMessage,
-        onTranslationError,
-        onCallRejected)
-    )
-  }, [targetLanguage])
-
+    return SocketClient.removeSocketListeners(
+      handleIncomingCall,
+      haddleNewProducer,
+      handleCallAnswered,
+      handleCallTerminated,
+      handleReceiveMessage,
+      onTranslationError,
+      onCallRejected
+    );
+  }, [targetLanguage]);
 
   async function onTranslationError(
     callTranslationContext: CallTranslationContext
@@ -259,7 +261,7 @@ function App() {
                 producer.producerClientId
               );
             }
-            if(!originalAudioEnabled) return;
+            if (!originalAudioEnabled) return;
             const consumer = await mediaConsumers.consume(
               producer.id,
               roomId,
@@ -438,7 +440,7 @@ function App() {
     senderId: string;
     receiverId: string;
     text: string;
-    targetLang: string
+    targetLang: string;
   };
 
   const handleSend = ({ text, receiverId, senderId, id }: sendmessageT) => {
@@ -460,6 +462,26 @@ function App() {
   const handleLanguageChange = (language: string) => {
     setTargetLanguage(language);
   };
+
+  const onNewUserJoined = (data: string) => {
+    console.log("web::", data, "onNewUserJoined at App.tsx ");
+    window.ReactNativeWebView.postMessage(
+      JSON.stringify({
+        type: "userJoined",
+        data,
+      })
+    );
+  };
+
+  const onUserLeft = (data: string) => {
+    console.log("web::", data, "onUserLeft at App.tsx ");
+    window.ReactNativeWebView.postMessage(
+      JSON.stringify({
+        type: "userLeft",
+        data,
+      })
+    );
+  }
 
   useEffect(() => {
     // connectUser();
@@ -541,6 +563,8 @@ function App() {
     });
   }, [callState]);
 
+  const [recipientId, setRecipientId] = useState("");
+
   return (
     <>
       <div className="p-4 space-y-4">
@@ -552,6 +576,16 @@ function App() {
             onChange={(e) => setUserId(e.target.value)}
             className="mt-1 block w-full border px-2 py-1"
           />
+        </div>
+        <div>
+          <input
+            type="text"
+            onChange={(e) => setRecipientId(e.target.value)}
+            placeholder="user to call"
+          />
+        </div>
+        <div>
+          {/* <button onClick={() => startCall(recipientId)} > Call</button> */}
         </div>
         {mediaConsumers.remoteVideoData.map((participant) => (
           <RenderAudioVideo
