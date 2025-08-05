@@ -10,20 +10,19 @@ class SocketClient {
   private socket: Socket | null = null;
   private io = io;
 
-  private constructor() {}
+  private constructor() { }
 
   static getInstance(): SocketClient {
     return new SocketClient();
   }
 
   connect(userId: string) {
-    const socket = this.io("https://70de13445cf3.ngrok-free.app", {
+    const socket = this.io("https://fd21714800ba.ngrok-free.app", {
       query: { userId },
       transports: ["websocket"],
     });
-    //https://fc70102802b4.ngrok-free.app/
 
-    https: socket.on("connect", () => {
+    socket.on("connect", () => {
       console.log("newSocket", socket.id, " f  ", userId);
 
       socket.onAny((event, ...args) => {
@@ -71,7 +70,9 @@ class SocketClient {
     handleCallTerminated: any,
     handleReceiveMessage: any,
     onTranslationError: any,
-    onCallRejected: any
+    onCallRejected: any,
+    onNewUserJoined: any,
+    onUserLeft: any
   ) {
     const socket = this.getSocket();
     socket?.off(incomingCallEvents.INCOMING_CALL, handleIncomingCall);
@@ -81,6 +82,8 @@ class SocketClient {
     socket?.off(translationEvents.TRANSLATION_ERROR, onTranslationError);
     socket?.off("receive_message", handleReceiveMessage);
     socket?.off(incomingCallEvents.CALL_REJECTED, onCallRejected);
+    socket?.off("user:online", onNewUserJoined);
+    socket?.off("user:offline", onUserLeft);
   }
 
   getSocket(): Socket | null {
