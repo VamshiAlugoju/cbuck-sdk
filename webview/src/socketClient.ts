@@ -71,8 +71,6 @@ class SocketClient {
     handleReceiveMessage: any,
     onTranslationError: any,
     onCallRejected: any,
-    onNewUserJoined: any,
-    onUserLeft: any
   ) {
     const socket = this.getSocket();
     socket?.off(incomingCallEvents.INCOMING_CALL, handleIncomingCall);
@@ -82,8 +80,6 @@ class SocketClient {
     socket?.off(translationEvents.TRANSLATION_ERROR, onTranslationError);
     socket?.off("receive_message", handleReceiveMessage);
     socket?.off(incomingCallEvents.CALL_REJECTED, onCallRejected);
-    socket?.off("user:online", onNewUserJoined);
-    socket?.off("user:offline", onUserLeft);
   }
 
   getSocket(): Socket | null {

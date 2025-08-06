@@ -78,7 +78,6 @@ function App() {
   async function init(payload: { apiKey: string; uniqueId: string }) {
     connectUser(payload.uniqueId);
     setUserId(payload.uniqueId);
-    // setApiKey(payload.apiKey);
     const _enabled = await isOriginalAudioEnabled();
     setOriginalAudioEnabled(_enabled);
   }
