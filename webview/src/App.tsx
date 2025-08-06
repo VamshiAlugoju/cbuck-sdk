@@ -199,8 +199,10 @@ function App() {
     callType: "audio";
     recipientId: string;
     uniqueId: string;
+    targetLang: string;
   }) {
     console.log("web::", userId, data.recipientId, "handleStartCall");
+    if(data.targetLang) targetLangRef.current = data.targetLang
     if (data.recipientId) {
       const payload: StartCallDto = {
         recipients: [data.recipientId],
