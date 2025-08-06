@@ -237,7 +237,8 @@ function App() {
     }
   }
 
-  function acceptCall(data: { roomId: string; callId: string }) {
+  function acceptCall(data: { roomId: string; callId: string }, clientPayload: any) {
+    targetLangRef.current = clientPayload.targetLang || "eng";
     if (!data.roomId || !data.callId) {
       console.log("web::", "No room id or call id");
       return;
@@ -529,7 +530,7 @@ function App() {
         handleStartCall(payload.data);
         break;
       case "acceptCall":
-        acceptCall(callState);
+        acceptCall(callState, payload.data);
         break;
       case "rejectCall":
         rejectCall();
