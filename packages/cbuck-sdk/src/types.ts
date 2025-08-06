@@ -49,6 +49,7 @@ export type Config = {
 export type StartCallParams = {
   recipientId: string;
   callType: CallType;
+  targetLang: string;
 };
 
 export interface CallSdk {

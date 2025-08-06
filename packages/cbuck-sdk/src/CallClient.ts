@@ -113,7 +113,7 @@ class CallClient {
     };
   }
 
-  public acceptCall(): void {
+  public acceptCall(targetLang: string): void {
     this.requestMicrophonePermission();
     if (!this._microphonePermission) {
       throw new Error('Microphone permission is not granted');
@@ -121,7 +121,7 @@ class CallClient {
     this.validateSetup();
     const payload: RNMessage = {
       type: 'acceptCall',
-      data: {},
+      data: {targetLang},
     };
     this.sendCustomRNMessage(payload);
 
