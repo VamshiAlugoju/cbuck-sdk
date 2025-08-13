@@ -24,14 +24,16 @@ export class ChatsGateway extends BaseLogger {
   async handleSendMessage(client: Socket, payload: SendMessageDto) {
     this.logger.log(`Received message: ${JSON.stringify(payload)}`);
     const io = this.socketService.getServerInstance();
-    const receiverSockerId = await getSocketId(payload.receiverId);
-    const translatedText = await translateText(payload.text, payload.targetLang || 'tel');
-    if (!receiverSockerId) {
+    const receiverSocketId = await getSocketId(payload.receiverId);
+    // const translatedText = await translateText(payload.text, payload.targetLang || 'hin');
+    // console.log("translatedText", translatedText);
+    
+    if (!receiverSocketId) {
       return {
         error: `Receiver with ID ${payload.receiverId} is not connected.`,
       };
     }
-    io.to(receiverSockerId).emit(chatEvents.RECEIVE_MESSAGE, {...payload, translatedText: translatedText});
+    io.to(receiverSocketId).emit(chatEvents.RECEIVE_MESSAGE, payload);
     this.logger.log(`Message sent to ${payload.receiverId}`);
   }
 }

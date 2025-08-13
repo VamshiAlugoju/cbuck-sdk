@@ -4,6 +4,7 @@ import type {
   Participant,
   sendmessageParams,
   StartCallParams,
+  TranslateTextParams,
 } from './types.ts';
 import type { WebView } from 'react-native-webview';
 import React from 'react';
@@ -121,7 +122,7 @@ class CallClient {
     this.validateSetup();
     const payload: RNMessage = {
       type: 'acceptCall',
-      data: {targetLang},
+      data: { targetLang },
     };
     this.sendCustomRNMessage(payload);
 
@@ -223,6 +224,28 @@ class CallClient {
     this.sendCustomRNMessage(payload);
   }
 
+
+  public async translateText(input: TranslateTextParams): Promise<string | null> {
+    const payload = {
+      text: input.text,
+      tgt_lang: input.targetLang,
+      src_lang: "eng",
+    }
+    try {
+      const res = await fetch(`http://10.10.0.203:8000/translate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      })
+      const data = await res.json();
+      return data.translation || null
+    } catch (error) {
+      return null
+    }
+  }
+
   public onError(callback: (error: Error) => void): void {
     this._callbacks.onError = callback;
   }
@@ -277,7 +300,7 @@ class CallClient {
     }
   }
 
-  public changeLanguage (newLanguage: string){
+  public changeLanguage(newLanguage: string) {
     this.validateSetup();
     const payload: RNMessage = {
       type: 'languageChange',
@@ -318,6 +341,7 @@ type RNMessageType =
   | 'init'
   | 'send_message'
   | "languageChange"
+  | "translate_text"
   ;
 
 type RNMessage = {

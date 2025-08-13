@@ -52,6 +52,12 @@ export type StartCallParams = {
   targetLang: string;
 };
 
+export type TranslateTextParams = {
+  text: string;
+  targetLang: string;
+  apiKey: string;
+}
+
 export interface CallSdk {
   /** Initializes the SDK with API keys and user identity */
   init(config: Config): Promise<void>;

@@ -198,10 +198,11 @@ export class MediaService {
         outputPort: translationReceiveTransport.tuple.localPort,
         targetLang,
         // callContext
-        sessionId: '',
+        sessionId: participant.userId.replaceAll("@", "_"),
+        userId: participant.userId.replaceAll("@", "_")
       };
 
-      fetch(`http://${TRANSLATOR_IP}:2002/translation/initiate`, {
+      fetch(`http://${TRANSLATOR_IP}:2004/translation/initiate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
