@@ -8,7 +8,7 @@ export function sendRNMessage({ type, data }: { type: string; data: any }) {
 }
 
 export async function isOriginalAudioEnabled(): Promise<boolean> {
-  const url = 'https://8d137d8c716c.ngrok-free.app/calls/is_original_audio_enabled';
+  const url = 'https://2e285f6f0d02.ngrok-free.app/calls/is_original_audio_enabled';
   console.log('Checking isOriginalAudioEnabled', url);
   try {
     const res = await fetch(url);
