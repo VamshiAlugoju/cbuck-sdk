@@ -25,7 +25,6 @@ import type { DeviceCore } from "./context/RtcProvider";
 import SocketClient from "./socketClient";
 import { isOriginalAudioEnabled, sendRNMessage } from "./utils/utils";
 import type { Message } from "postcss";
-import { translateText } from "./chats/chatsLib";
 
 const defaultCallDetails: CallDetails = {
   callId: "",
@@ -440,11 +439,6 @@ function App() {
 
   const handleReceiveMessage = async (message: Message) => {
     console.log("web::", message, "handleReceiveMessage at App.tsx ");
-    if (targetLangRef.current && targetLangRef.current !== "eng") {
-      const res = await translateText(message.text, message.targetLang);
-      console.log("web:: translated response", res);
-      message.text = res;
-    }
     window.ReactNativeWebView.postMessage(
       JSON.stringify({
         type: "receive_message",
