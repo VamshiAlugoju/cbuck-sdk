@@ -50,6 +50,8 @@ export type StartCallParams = {
   recipientId: string;
   callType: CallType;
   targetLang: string;
+  srcLang: string;
+  gender: string;
 };
 
 export type TranslateTextParams = {
