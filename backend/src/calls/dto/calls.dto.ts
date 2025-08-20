@@ -312,7 +312,17 @@ export class InitiateTranslationDto {
 
   @IsString()
   @IsNotEmpty({ message: 'targetLang is required' })
-  targetLang: string
+  targetLang: string;
+
+
+  @IsString()
+  @IsNotEmpty({ message: 'srcLang is required' })
+  srcLang: string;
+
+
+  @IsString()
+  @IsNotEmpty({ message: 'gender is required' })
+  gender: string;
 }
 
 

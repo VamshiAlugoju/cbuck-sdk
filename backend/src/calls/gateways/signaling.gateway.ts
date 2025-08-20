@@ -105,6 +105,7 @@ export class SignalingGateway {
     @ConnectedSocket() socket: Socket,
     @MessageBody() payload: InitiateTranslationDto,
   ) {
+    this.logger.log(`user:${socket.data.userId} is initiating translation`, payload);
     const data = await this.callService.initiateTranslation(socket, payload);
     return data;
   }

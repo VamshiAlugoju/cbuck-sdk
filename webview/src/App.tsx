@@ -61,6 +61,8 @@ function App() {
   const [userId, setUserId] = useState("");
   const [targetLanguage, setTargetLanguage] = useState("eng");
   const targetLangRef = useRef("eng");
+  const srcLangRef = useRef("eng");
+  const genderRef = useRef("male");
 
   useEffect(() => {
     const id = setInterval(() => {
@@ -168,7 +170,7 @@ function App() {
     const socket = SocketClient.getSocket();
     socket?.emit(
       translationEvents.INITIATE_TRANSLATION,
-      { roomId, producerId, targetLang },
+      { roomId, producerId, targetLang, srcLang: srcLangRef.current, gender: genderRef.current },
       async (data: any) => {
         const device = mediaDevice.getDevice();
         let prevDevice = device;
@@ -199,9 +201,13 @@ function App() {
     recipientId: string;
     uniqueId: string;
     targetLang: string;
+    srcLang: string;
+    gender: string;
   }) {
     console.log("web::", userId, data.recipientId, "handleStartCall");
-    if(data.targetLang) targetLangRef.current = data.targetLang
+    if (data.targetLang) targetLangRef.current = data.targetLang;
+    if (data.srcLang) srcLangRef.current = data.srcLang;
+    if (data.gender) genderRef.current = data.gender;
     if (data.recipientId) {
       const payload: StartCallDto = {
         recipients: [data.recipientId],
@@ -236,8 +242,13 @@ function App() {
     }
   }
 
-  function acceptCall(data: { roomId: string; callId: string }, clientPayload: any) {
+  function acceptCall(
+    data: { roomId: string; callId: string },
+    clientPayload: any
+  ) {
     targetLangRef.current = clientPayload.targetLang || "eng";
+    srcLangRef.current = clientPayload.srcLang || "eng";
+    genderRef.current = clientPayload.gender || "male";
     if (!data.roomId || !data.callId) {
       console.log("web::", "No room id or call id");
       return;
@@ -495,7 +506,7 @@ function App() {
         data,
       })
     );
-  }
+  };
 
   useEffect(() => {
     // connectUser();
