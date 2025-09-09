@@ -17,7 +17,7 @@ class SocketClient {
   }
 
   connect(userId: string) {
-    const socket = this.io("https://0e63c8582b3a.ngrok-free.app", {
+    const socket = this.io("https://eb5d7e82c4a8.ngrok-free.app", {
       query: { userId },
       transports: ["websocket"],
     });
