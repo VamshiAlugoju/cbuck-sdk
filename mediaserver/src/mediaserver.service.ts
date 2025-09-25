@@ -150,7 +150,7 @@ export class MediaService {
     }
     try {
       const MEDIASOUP_IP = process.env.MEDIASOUP_PUBLIC_IP;
-      const TRANSLATOR_IP = process.env.TRANSLATOR_IP || '10.10.0.203';
+      const TRANSLATOR_IP = process.env.TRANSLATOR_IP || '10.20.20.7';
       let translationProducer: Producer<AppData> | null = null;
       const remoteRtpPort = getPort();
 
