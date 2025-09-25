@@ -166,11 +166,13 @@ function App() {
     console.info("Initiating translation for: ", clientId);
     // const targetLang = targetLanguage || "eng";
     const targetLang = targetLangRef.current || "eng";
+    const srcLang = srcLangRef.current || "eng";
+    const gender = genderRef.current || "male";
 
     const socket = SocketClient.getSocket();
     socket?.emit(
       translationEvents.INITIATE_TRANSLATION,
-      { roomId, producerId, targetLang, srcLang: srcLangRef.current, gender: genderRef.current },
+      { roomId, producerId, targetLang, srcLang, gender },
       async (data: any) => {
         const device = mediaDevice.getDevice();
         let prevDevice = device;

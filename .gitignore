@@ -1,2 +1,49 @@
 node_modules
 */dist
+package-lock.json
+
+
+# === Node Modules ===
+**/node_modules/
+**/yarn.lock
+**/package-lock.json
+**/pnpm-lock.yaml
+
+# === React Native: Metro / Bundler ===
+**/.expo/
+**/.expo-shared/
+**/.vscode/
+**/.idea/
+**/.DS_Store
+**/tmp/
+**/*.log
+**/*.tmp
+**/*.swp
+**/*.jsbundle
+
+# === React Native: Android ===
+**/android/.gradle/
+**/android/.idea/
+**/android/.settings/
+**/android/app/build/
+**/android/build/
+**/android/local.properties
+
+# === React Native: iOS ===
+**/ios/Pods/
+**/ios/build/
+**/ios/*.xcworkspace/
+**/ios/*.xcodeproj/project.xcworkspace/
+**/ios/*.xcodeproj/xcuserdata/
+**/ios/*.xcworkspace/xcuserdata/
+
+# === Fastlane ===
+**/fastlane/report.xml
+**/fastlane/screenshots/**/*.png
+**/fastlane/test_output
+
+# === Misc ===
+**/coverage/
+**/.env
+**/.env.*
+**/.eslintcache

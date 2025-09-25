@@ -138,7 +138,7 @@ export class MediaService {
 
   async translate(data: InitiateTranslationDto) {
     // ---------------- Translation ----------------
-    const { roomId, producerId, targetLang, initiatedUser } = data;
+    const { roomId, producerId, targetLang, initiatedUser, srcLang, gender } = data;
     const room = await this.validateRoom(roomId);
     const producer = await room.getProducer(producerId);
     if (!producer) {
@@ -199,7 +199,9 @@ export class MediaService {
         targetLang,
         // callContext
         sessionId: participant.userId.replaceAll("@", "_"),
-        userId: participant.userId.replaceAll("@", "_")
+        userId: participant.userId.replaceAll("@", "_"),
+        srcLang,
+        gender
       };
 
       fetch(`http://${TRANSLATOR_IP}:2004/translation/initiate`, {

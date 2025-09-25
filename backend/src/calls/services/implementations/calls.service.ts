@@ -488,12 +488,14 @@ export default class CallService implements OnModuleInit {
   }
 
   async initiateTranslation(socket: Socket, payload: InitiateTranslationDto) {
-    const { producerId, roomId, targetLang } = payload;
+    const { producerId, roomId, targetLang, srcLang, gender } = payload;
     const res = await this.mediaServerClient.translate(
       roomId,
       producerId,
       targetLang,
       socket.data.userId,
+      srcLang,
+      gender
     );
     const translatedProducerId = res.producerId;
     return {

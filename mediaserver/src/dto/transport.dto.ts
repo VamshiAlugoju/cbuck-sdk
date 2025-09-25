@@ -191,6 +191,15 @@ export class InitiateTranslationDto {
   @IsString()
   @IsNotEmpty({ message: 'initiatedUser is required' })
   initiatedUser: string
+
+
+  @IsString()
+  @IsNotEmpty({ message: 'srcLang is required' })
+  srcLang: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'gender is required' })
+  gender: string;
 }
 
 export class StoppedTranslationDto {

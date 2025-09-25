@@ -240,12 +240,14 @@ class MediaServerClient {
     return res.data;
   }
 
-  async translate(roomId: string, producerId: string, targetLang: string, initiatedUser: string) {
+  async translate(roomId: string, producerId: string, targetLang: string, initiatedUser: string, srcLang: string, gender: string) {
     const res = await this.axiosClient.post(`/mediaserver/translate`, {
       roomId,
       producerId,
       targetLang,
-      initiatedUser
+      initiatedUser,
+      srcLang,
+      gender
     })
     return res.data
   }

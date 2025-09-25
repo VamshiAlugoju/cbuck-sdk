@@ -3,7 +3,7 @@ export const translateText = async (text: string, targetLang: string) => {
   try {
     const payload = {
       text: text,
-      tgt_lang: targetLang,
+      tgt_lang: "hin",
       src_lang: "eng",
     };
     const res = await fetch(`http://10.10.0.203:8000/translate`, {
@@ -13,7 +13,10 @@ export const translateText = async (text: string, targetLang: string) => {
       },
       body: JSON.stringify(payload),
     });
+    
     const data = await res.json();
+    console.log(data);
+    
     return data.translation;
   } catch (error) {
     return `translated: ${text}`;

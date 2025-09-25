@@ -16,8 +16,6 @@ export class SendMessageDto {
   @IsNotEmpty()
   @IsString()
   id: string;
-
-  targetLang: string;
 }
 
 export class MessageHistoryDto {
