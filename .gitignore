@@ -12,7 +12,6 @@ package-lock.json
 # === React Native: Metro / Bundler ===
 **/.expo/
 **/.expo-shared/
-**/.vscode/
 **/.idea/
 **/.DS_Store
 **/tmp/
@@ -44,6 +43,5 @@ package-lock.json
 
 # === Misc ===
 **/coverage/
-**/.env
-**/.env.*
 **/.eslintcache
+config.bat
